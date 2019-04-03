@@ -26,6 +26,11 @@ struct Spring {
     float k_constant;
     
     virtual Vec3f calculateForce() = 0;
+    
+    virtual ~Spring()
+    {
+        //HAHAHA WHO CARES ABOUT MEMEORY DEALLOCATION
+    }
 };
 
 
