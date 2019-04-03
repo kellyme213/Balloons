@@ -111,6 +111,7 @@ set (SRCS
   #${PROJECT_SOURCE_DIR}/boundingbox.cpp
   ${PROJECT_SOURCE_DIR}/utils.cpp
   ${PROJECT_SOURCE_DIR}/meshdata.cpp
+  ${PROJECT_SOURCE_DIR}/spring.cpp
   ${OS_SPECIFIC_FILES}
   )
 
