@@ -21,8 +21,8 @@
 
 struct Spring {
     
-    ClothParticle* leftParticle;
-    ClothParticle* rightParticle;
+    BalloonParticle* leftParticle;
+    BalloonParticle* rightParticle;
     float k_constant;
     
     virtual Vec3f calculateForce() = 0;
