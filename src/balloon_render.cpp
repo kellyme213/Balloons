@@ -28,7 +28,10 @@ void Balloon::AddWireFrameTriangle(float* &current,
     bccolor=white;
     cacolor=white;
   }
-  
+    std::cout << apos << bpos << cpos << std::endl;
+    std::cout << anormal << bnormal << cnormal << std::endl;
+    //std::cout << apos << bpos << cpos << std::endl;
+
   // Draw 3 triangles if wireframe is active
   float12 ta = { float(apos.x()),float(apos.y()),float(apos.z()),1, float(anormal.x()),float(anormal.y()),float(anormal.z()),0, float(abcolor.r()),float(abcolor.g()),float(abcolor.b()),1 };
   float12 tb = { float(bpos.x()),float(bpos.y()),float(bpos.z()),1, float(bnormal.x()),float(bnormal.y()),float(bnormal.z()),0, float(abcolor.r()),float(abcolor.g()),float(abcolor.b()),1 };
@@ -78,13 +81,13 @@ Vec3f super_elastic_color(const BalloonParticle &a, const BalloonParticle &b, do
 
 void Balloon::PackMesh() {
 
-  int new_cloth_tri_count = 0; 
+  int new_balloon_tri_count = 0;
 
   if (mesh_data->surface) {
-      new_cloth_tri_count += 3*4 * 2 * mesh_faces.size();//(nx-1) * (ny-1);
+      new_balloon_tri_count += 12 * 2 * mesh_faces.size();//(nx-1) * (ny-1);
   }
   if (mesh_data->velocity) {
-    //new_cloth_tri_count += 12 * (nx) * (ny);
+    //new_balloon_tri_count += 12 * (nx) * (ny);
   }
   if (mesh_data->force) {
     // *********************************************************************  
@@ -92,25 +95,26 @@ void Balloon::PackMesh() {
     //
     // Insert the # of forces you will visualize...
     //
-    // new_cloth_tri_count += ????
+    // new_balloon_tri_count += ????
     // *********************************************************************
   }
   if (mesh_data->bounding_box) {
-    new_cloth_tri_count += 12 * 12;
+    new_balloon_tri_count += 12 * 12;
   }
-  if (mesh_data->clothTriCount != new_cloth_tri_count) {
-    delete [] mesh_data->clothTriData;
-    mesh_data->clothTriCount = new_cloth_tri_count;      
+  if (mesh_data->balloonTriCount != new_balloon_tri_count) {
+    delete [] mesh_data->balloonTriData;
+    mesh_data->balloonTriCount = new_balloon_tri_count;
+      //std::cout <<mesh_data->balloonTriCount;
     // allocate space for the new data
-    if (mesh_data->clothTriCount == 0) {
-      mesh_data->clothTriData = 0;
+    if (mesh_data->balloonTriCount == 0) {
+      mesh_data->balloonTriData = 0;
     } else {
-      mesh_data->clothTriData = new float[12*3* mesh_data->clothTriCount];
+      mesh_data->balloonTriData = new float[12*3* mesh_data->balloonTriCount];
     }
   }
   
   // Loop over all of the triangles
-  float* current = mesh_data->clothTriData;
+  float* current = mesh_data->balloonTriData;
 
   if (mesh_data->surface) {
     PackBalloonSurface(current);
@@ -146,15 +150,17 @@ void Balloon::PackBalloonSurface(float* &current) {
   //   |/                     \|
   //   d-----------------------c
   //
-/*
+    std::cout << "HI" << std::endl;
   // mesh surface positions & normals
-  for (int i = 0; i < nx-1; i++) {
-    for (int j = 0; j < ny-1; j++) {
+    for (int i = 0; i < mesh_faces.size(); i++) {
+  //for (int i = 0; i < nx-1; i++) {
+    //for (int j = 0; j < ny-1; j++) {
       
-      const BalloonParticle &a = getParticle(i,j);
-      const BalloonParticle &b = getParticle(i,j+1);
-      const BalloonParticle &c = getParticle(i+1,j+1);
-      const BalloonParticle &d = getParticle(i+1,j);
+        Face f = mesh_faces[i];
+        const BalloonParticle &a = particles[f.v[0]];//getParticle(i,j);
+        const BalloonParticle &b = particles[f.v[1]];//getParticle(i,j+1);
+        const BalloonParticle &c = particles[f.v[2]];//getParticle(i+1,j+1);
+        const BalloonParticle &d = particles[f.v[3]];//getParticle(i+1,j);
 
       const Vec3f &a_pos = a.getPosition();
       const Vec3f &b_pos = b.getPosition();
@@ -163,10 +169,10 @@ void Balloon::PackBalloonSurface(float* &current) {
 
       Vec3f x_pos = (a_pos+b_pos+c_pos+d_pos) * 0.25f;
 
-      Vec3f a_normal = computeGouraudNormal(i,j); 
-      Vec3f b_normal = computeGouraudNormal(i,j+1); 
-      Vec3f c_normal = computeGouraudNormal(i+1,j+1); 
-      Vec3f d_normal = computeGouraudNormal(i+1,j); 
+        Vec3f a_normal;// = computeGouraudNormal(i,j);
+        Vec3f b_normal;// = computeGouraudNormal(i,j+1);
+        Vec3f c_normal;// = computeGouraudNormal(i+1,j+1);
+        Vec3f d_normal;// = computeGouraudNormal(i+1,j);
       if (!mesh_data->gouraud) {
         // compute normals at each corner and average them
         Vec3f top = b_pos-a_pos;
@@ -181,8 +187,9 @@ void Balloon::PackBalloonSurface(float* &current) {
         a_normal = b_normal = c_normal = d_normal = normal;
       }
       
-      Vec3f x_normal = (a_normal+b_normal+c_normal+d_normal);
+        Vec3f x_normal = Vec3f(1,1,1);//(a_normal+b_normal+c_normal+d_normal);
       x_normal.Normalize();
+        a_normal = b_normal = c_normal = d_normal = x_normal;
 
       Vec3f ab_color = super_elastic_color(a,b,provot_structural_correction);
       Vec3f bc_color = super_elastic_color(b,c,provot_structural_correction);
@@ -209,7 +216,7 @@ void Balloon::PackBalloonSurface(float* &current) {
                            d_normal,a_normal,x_normal,
                            da_color,ac_color,bd_color);
     }
-  }*/
+  //}
 }
 
 

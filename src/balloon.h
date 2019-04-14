@@ -151,6 +151,7 @@ private:
   BalloonParticle *particles;
   BoundingBox box;
     std::vector<Face> mesh_faces;
+    std::vector<Vec3f> mesh_vertices;
   // simulation parameters
   double damping;
   // spring constants

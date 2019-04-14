@@ -24,6 +24,7 @@ extern MeshData *mesh_data;
   id<MTLCommandQueue> _commandQueue;
   vector_uint2 _viewportSize;
   id<MTLBuffer> _clothVertexBuffer;
+  id<MTLBuffer> _balloonVertexBuffer;
   id<MTLBuffer> _fluidTriVertexBuffer;
   id<MTLBuffer> _fluidPointVertexBuffer;
 
@@ -36,6 +37,7 @@ extern MeshData *mesh_data;
     
   // The number of vertices in our vertex buffer;
   NSUInteger _numClothVertices;
+  NSUInteger _numBalloonVertices;
   NSUInteger _numFluidTriVertices;
   NSUInteger _numFluidPointVertices;
 
@@ -78,16 +80,26 @@ extern MeshData *mesh_data;
 }
 
 NSMutableData *clothVertexData = NULL;
+NSMutableData *balloonVertexData = NULL;
 NSMutableData *fluidTriVertexData = NULL;
 NSMutableData *fluidPointVertexData = NULL;
 
++ (nonnull NSData *)generateBalloonVertexData
+{
+  NSUInteger dataSize = sizeof(float)*12*3*mesh_data->balloonTriCount;
+  [balloonVertexData release];
+  balloonVertexData = [[NSMutableData alloc] initWithLength:dataSize];
+  memcpy(balloonVertexData.mutableBytes, mesh_data->balloonTriData, sizeof(float)*12*3*mesh_data->balloonTriCount);
+  return balloonVertexData;
+}
+
 + (nonnull NSData *)generateClothVertexData
 {
-  NSUInteger dataSize = sizeof(float)*12*3*mesh_data->clothTriCount;
-  [clothVertexData release];
-  clothVertexData = [[NSMutableData alloc] initWithLength:dataSize];
-  memcpy(clothVertexData.mutableBytes, mesh_data->clothTriData, sizeof(float)*12*3*mesh_data->clothTriCount);
-  return clothVertexData;
+    NSUInteger dataSize = sizeof(float)*12*3*mesh_data->clothTriCount;
+    [clothVertexData release];
+    clothVertexData = [[NSMutableData alloc] initWithLength:dataSize];
+    memcpy(clothVertexData.mutableBytes, mesh_data->clothTriData, sizeof(float)*12*3*mesh_data->clothTriCount);
+    return clothVertexData;
 }
 
 + (nonnull NSData *)generateFluidTriVertexData
@@ -173,6 +185,14 @@ NSMutableData *fluidPointVertexData = NULL;
   memcpy(_clothVertexBuffer.contents, clothVertexData.bytes, clothVertexData.length);
   _numClothVertices = clothVertexData.length / sizeof(MetalVertex);
   
+    
+    NSData *balloonVertexData = [MetalRenderer generateBalloonVertexData];
+    [_balloonVertexBuffer release];
+    _balloonVertexBuffer = [_device newBufferWithLength:balloonVertexData.length
+                                              options:MTLResourceStorageModeShared];
+    memcpy(_balloonVertexBuffer.contents, balloonVertexData.bytes, balloonVertexData.length);
+    _numBalloonVertices = balloonVertexData.length / sizeof(MetalVertex);
+    
 
   NSData *fluidTriVertexData = [MetalRenderer generateFluidTriVertexData];
   [_fluidTriVertexBuffer release];
@@ -379,6 +399,14 @@ NSMutableData *fluidPointVertexData = NULL;
                               offset:0
                              atIndex:MetalVertexInputIndexVertices];
       int numMeshVertices = mesh_data->clothTriCount * 3;
+      [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                        vertexStart:0
+                        vertexCount:numMeshVertices];
+      
+      [renderEncoder setVertexBuffer:_balloonVertexBuffer
+                              offset:0
+                             atIndex:MetalVertexInputIndexVertices];
+      numMeshVertices = mesh_data->balloonTriCount * 3;
       [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
                         vertexStart:0
                         vertexCount:numMeshVertices];

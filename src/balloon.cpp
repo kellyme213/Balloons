@@ -125,15 +125,43 @@ Balloon::Balloon(ArgParser *_args) {
                     ShearSpring spring;
                     spring.leftParticle = &particles[x];
                     spring.rightParticle = &particles[testVert];
-                    particles[x].shear_springs.push_back(spring);
-                    std::cout << x << " " << testVert << std::endl;
+                    bool found = false;
+                    
+                    for (ShearSpring s: particles[x].shear_springs)
+                    {
+                        if (s.equals(spring))
+                        {
+                            found = true;
+                        }
+                    }
+                    
+                    if (!found)
+                    {
+                        particles[x].shear_springs.push_back(spring);
+                    }
                 }
                 else if (connectivity == 1) //structural
                 {
                     StructuralSpring spring;
                     spring.leftParticle = &particles[x];
                     spring.rightParticle = &particles[testVert];
-                    particles[x].structural_springs.push_back(spring);
+                    
+                    bool found = false;
+                    
+                    for (StructuralSpring s: particles[x].structural_springs)
+                    {
+                        if (s.equals(spring))
+                        {
+                            found = true;
+                        }
+                    }
+                    
+                    if (!found)
+                    {
+                        particles[x].structural_springs.push_back(spring);
+                        //std::cout << x << " " << testVert << std::endl;
+                    }
+                    
                     containsStructural = true;
                 }
             }
@@ -201,13 +229,42 @@ Balloon::Balloon(ArgParser *_args) {
                                 spring1.leftParticle = &particles[x];
                                 spring1.rightParticle = &particles[testVert2];
                                 spring1.middleParticle = &particles[testVert];
-                                particles[x].angular_springs.push_back(spring1);
-                                std::cout << x << " " << testVert << " " << testVert2 << std::endl;
                                 
+                                bool found = false;
+                                
+                                for (AngularSpring s: particles[x].angular_springs)
+                                {
+                                    if (s.equals(spring1))
+                                    {
+                                        found = true;
+                                    }
+                                }
+                                
+                                if (!found)
+                                {
+                                    particles[x].angular_springs.push_back(spring1);
+                                }
+                                
+
                                 FlexionSpring spring2;
-                                spring1.leftParticle = &particles[x];
-                                spring1.rightParticle = &particles[testVert2];
-                                particles[x].flexion_springs.push_back(spring2);
+                                spring2.leftParticle = &particles[x];
+                                spring2.rightParticle = &particles[testVert2];
+                                //particles[x].flexion_springs.push_back(spring2);
+                                found = false;
+                                
+                                for (FlexionSpring s: particles[x].flexion_springs)
+                                {
+                                    if (s.equals(spring2))
+                                    {
+                                        found = true;
+                                    }
+                                }
+                                
+                                if (!found)
+                                {
+                                    particles[x].flexion_springs.push_back(spring2);
+
+                                }
                             }
                         }
                     }
@@ -217,7 +274,8 @@ Balloon::Balloon(ArgParser *_args) {
     }
     
     this->mesh_faces = faces;
-
+    this->mesh_vertices = vertices;
+    /*
     std::cout << std::endl;
     for (int x = 0; x < vertices.size(); x++)
     {
@@ -228,6 +286,7 @@ Balloon::Balloon(ArgParser *_args) {
         std::cout << particles[x].flexion_springs.size() << std::endl;
 
     }
+    */
 /*
   // read in the simulation parameters
   istr >> token >> k_structural; assert (token == "k_structural");  // (units == N/m)  (N = kg*m/s^2)
@@ -296,19 +355,21 @@ Balloon::Balloon(ArgParser *_args) {
 
   computeBoundingBox();
  */
+    computeBoundingBox();
 }
 
 // ================================================================================
 
 void Balloon::computeBoundingBox() {
-    /*
-  box = BoundingBox(getParticle(0,0).getPosition());
-  for (int i = 0; i < nx; i++) {
-    for (int j = 0; j < ny; j++) {
-      box.Extend(getParticle(i,j).getPosition());
-      box.Extend(getParticle(i,j).getOriginalPosition());
+    
+  box = BoundingBox(particles[0].getPosition());
+    for (int i = 0; i < mesh_vertices.size(); i++) {
+    //for (int i = 0; i < nx; i++) {
+    //for (int j = 0; j < ny; j++) {
+      box.Extend(particles[i].getPosition());
+      box.Extend(particles[i].getOriginalPosition());
     }
-  }*/
+  //}
 }
 
 // ================================================================================

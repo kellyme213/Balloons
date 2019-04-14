@@ -34,26 +34,46 @@ struct Spring {
     {
         //HAHAHA WHO CARES ABOUT MEMEORY DEALLOCATION
     }
+    
 };
 
 
 struct StructuralSpring: Spring {
     
+    bool equals(StructuralSpring s)
+    {
+        return leftParticle == s.leftParticle && rightParticle == s.rightParticle;
+    }
     
     Vec3f calculateForce();
 };
 
 struct ShearSpring: Spring {
     
+    bool equals(ShearSpring& s)
+    {
+        return leftParticle == s.leftParticle && rightParticle == s.rightParticle;
+    }
+    
     Vec3f calculateForce();
 };
 
 struct FlexionSpring: Spring {
     
+    bool equals(FlexionSpring& s)
+    {
+        return leftParticle == s.leftParticle && rightParticle == s.rightParticle;
+    }
+    
     Vec3f calculateForce();
 };
 
 struct AngularSpring: Spring {
+    
+    bool equals(AngularSpring& s)
+    {
+        return leftParticle == s.leftParticle && rightParticle == s.rightParticle && middleParticle == s.middleParticle;
+    }
     
     BalloonParticle* middleParticle;
     Vec3f calculateForce();
