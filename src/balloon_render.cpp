@@ -259,21 +259,21 @@ void Balloon::PackBalloonForces(float* &current) {
 
 Vec3f Balloon::computeGouraudNormal(int i) const {
     
-    return Vec3f(0,0,0);
+    //return Vec3f(0,0,0);
     
-    /*
-  assert (i >= 0 && i < nx && j >= 0 && j < ny);
+    Face f = mesh_faces[i];
+  //assert (i >= 0 && i < nx && j >= 0 && j < ny);
 
-  Vec3f pos = getParticle(i,j).getPosition();
+  Vec3f pos = particles[f.v[0]].getPosition();
   Vec3f north = pos;
   Vec3f south = pos;
   Vec3f east = pos;
   Vec3f west = pos;
   
-  if (i-1 >= 0) north = getParticle(i-1,j).getPosition();
-  if (i+1 < nx) south = getParticle(i+1,j).getPosition();
-  if (j-1 >= 0) east = getParticle(i,j-1).getPosition();
-  if (j+1 < ny) west = getParticle(i,j+1).getPosition();
+  north = particles[f.v[0]].getPosition();
+  south = particles[f.v[1]].getPosition();
+  east = particles[f.v[2]].getPosition();
+  west = particles[f.v[3]].getPosition();
 
   Vec3f vns = north - south;
   Vec3f vwe = west - east;
@@ -285,7 +285,7 @@ Vec3f Balloon::computeGouraudNormal(int i) const {
   Vec3f::Cross3(normal,vns,vwe);
   normal.Normalize();
   return normal;
-     */
+    
 }
 
 // ================================================================================
