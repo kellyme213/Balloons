@@ -12,6 +12,60 @@
 // Cloth Particles
 // =====================================================================================
 
+struct ShearSpring;
+struct StructuralSpring;
+struct FlexionSpring;
+struct AngularSpring;
+
+
+
+struct Face
+{
+    int v[4];
+    
+    bool contains(int n)
+    {
+        return (n == v[0]) || (n == v[1]) || (n == v[2]) || (n == v[3]);
+    }
+    
+    int connectivity(int n1, int n2)
+    {
+        if (!contains(n1) || !contains(n2))
+        {
+            return -1;
+        }
+        
+        if (n1 == n2)
+        {
+            return 2;
+        }
+        
+        int a, b;
+        
+        for (int x = 0; x < 4; x++)
+        {
+            if (n1 == v[x])
+            {
+                a = x;
+            }
+            if (n2 == v[x])
+            {
+                b = x;
+            }
+        }
+        
+        //1 = structural spring
+        //0 = shear spring
+        return (abs(a - b) % 2);
+    }
+    
+    bool equals(Face& f)
+    {
+        return (v[0] == f.v[0]) && (v[1] == f.v[1]) &&
+        (v[2] == f.v[2]) && (v[3] == f.v[3]);
+    }
+};
+
 class BalloonParticle {
 public:
   // ACCESSORS
@@ -63,23 +117,24 @@ public:
 
   // PAINTING & ANIMATING
   void PackMesh();
-  void PackClothSurface(float* &current);
-  void PackClothVelocities(float* &current);
-  void PackClothForces(float* &current);
+  void PackBalloonSurface(float* &current);
+  void PackBalloonVelocities(float* &current);
+  void PackBalloonForces(float* &current);
   void Animate();
 
 private:
 
   // PRIVATE ACCESSORS
+    /*
   const BalloonParticle& getParticle(int i, int j) const {
     assert (i >= 0 && i < nx && j >= 0 && j < ny);
     return particles[i + j*nx]; }
   BalloonParticle& getParticle(int i, int j) {
     assert (i >= 0 && i < nx && j >= 0 && j < ny);
     return particles[i + j*nx]; }
-
-  Vec3f computeGouraudNormal(int i, int j) const;
-
+*/
+  //Vec3f computeGouraudNormal(int i, int j) const;
+    Vec3f computeGouraudNormal(int i) const;
   // HELPER FUNCTION
   void computeBoundingBox();
 
@@ -92,9 +147,10 @@ private:
   // REPRESENTATION
   ArgParser *args;
   // grid data structure
-  int nx, ny;
+  //int nx, ny;
   BalloonParticle *particles;
   BoundingBox box;
+    std::vector<Face> mesh_faces;
   // simulation parameters
   double damping;
   // spring constants
@@ -105,10 +161,7 @@ private:
   double provot_structural_correction;
   double provot_shear_correction;
     
-    Vec3f calculateForce(int i1, int j1, int i2, int j2, double k_constant);
-    void provotCorrection(int i1, int j1, int i2, int j2, double k_constant);
     double isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
-    bool particleExists(int i, int j);
 };
 
 // ========================================================================

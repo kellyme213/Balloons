@@ -13,6 +13,7 @@ class Mesh;
 class Cloth;
 class Fluid;
 class BoundingBox;
+class Balloon;
 
 // ====================================================================
 // ====================================================================
@@ -41,15 +42,17 @@ public:
 
   std::string cloth_file;
   std::string fluid_file;
+    std::string balloon_file;
   std::string path;
 
   Cloth *cloth;
   Fluid *fluid;
+    Balloon* balloon;
   MeshData *mesh_data;
   BoundingBox *bbox;
 };
 
 extern ArgParser *GLOBAL_args;
-void packMesh(MeshData *mesh_data, Cloth *cloth, Fluid *fluid);
+void packMesh(MeshData *mesh_data, Cloth *cloth, Fluid *fluid, Balloon *balloon);
 
 #endif

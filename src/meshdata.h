@@ -58,6 +58,8 @@ typedef struct MeshData {
 
   bool perspective;
   
+    int balloonTriCount;
+    float* balloonTriData;
   int clothTriCount;
   float* clothTriData;
   int fluidTriCount;

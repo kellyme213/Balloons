@@ -10,6 +10,7 @@
 #include "argparser.h"
 #include "cloth.h"
 #include "fluid.h"
+#include "balloon.h"
 
 // ====================================================================
 
@@ -39,6 +40,9 @@ void INIT_MeshData(MeshData *mesh_data) {
 
   mesh_data->clothTriCount = 0;
   mesh_data->clothTriData = NULL;
+    
+    mesh_data->balloonTriCount = 0;
+    mesh_data->balloonTriData = NULL;
 
   mesh_data->fluidTriCount = 0;
   mesh_data->fluidTriData = NULL;
@@ -64,12 +68,13 @@ void INIT_MeshData(MeshData *mesh_data) {
 extern "C" {
 
   void PackMesh() {
-    packMesh(GLOBAL_args->mesh_data, GLOBAL_args->cloth, GLOBAL_args->fluid);
+    packMesh(GLOBAL_args->mesh_data, GLOBAL_args->cloth, GLOBAL_args->fluid, GLOBAL_args->balloon);
   }
 
   void Step() {
     if (GLOBAL_args->cloth) GLOBAL_args->cloth->Animate();
     if (GLOBAL_args->fluid) GLOBAL_args->fluid->Animate();
+      if (GLOBAL_args->balloon) GLOBAL_args->balloon->Animate();
   }
 
   void Animate() {

@@ -7,14 +7,17 @@
 
 #include <string>
 #include <random>
-#include "cloth.h"
+#include "balloon.h"
 #include "vectors.h"
 
+
 //these might be needed in the future, but who knows?
-//class MeshData;
-//class Mesh;
+class MeshData;
+class Mesh;
+class Balloon;
+class BalloonParticle;
 //class Cloth;
-//class BoundingBox;
+class BoundingBox;
 
 // ====================================================================
 // ====================================================================
@@ -52,7 +55,7 @@ struct FlexionSpring: Spring {
 
 struct AngularSpring: Spring {
     
-    ClothParticle* middleParticle;
+    BalloonParticle* middleParticle;
     Vec3f calculateForce();
 };
 

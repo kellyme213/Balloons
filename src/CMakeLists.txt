@@ -113,6 +113,7 @@ set (SRCS
   ${PROJECT_SOURCE_DIR}/meshdata.cpp
   ${PROJECT_SOURCE_DIR}/spring.cpp
   ${PROJECT_SOURCE_DIR}/balloon.cpp
+  ${PROJECT_SOURCE_DIR}/balloon_render.cpp
   ${OS_SPECIFIC_FILES}
   )
 

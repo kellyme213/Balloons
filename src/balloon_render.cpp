@@ -81,10 +81,10 @@ void Balloon::PackMesh() {
   int new_cloth_tri_count = 0; 
 
   if (mesh_data->surface) {
-    new_cloth_tri_count += 3*4 * (nx-1) * (ny-1);
+      new_cloth_tri_count += 3*4 * 2 * mesh_faces.size();//(nx-1) * (ny-1);
   }
   if (mesh_data->velocity) {
-    new_cloth_tri_count += 12 * (nx) * (ny);
+    //new_cloth_tri_count += 12 * (nx) * (ny);
   }
   if (mesh_data->force) {
     // *********************************************************************  
@@ -146,7 +146,7 @@ void Balloon::PackBalloonSurface(float* &current) {
   //   |/                     \|
   //   d-----------------------c
   //
-
+/*
   // mesh surface positions & normals
   for (int i = 0; i < nx-1; i++) {
     for (int j = 0; j < ny-1; j++) {
@@ -209,13 +209,13 @@ void Balloon::PackBalloonSurface(float* &current) {
                            d_normal,a_normal,x_normal,
                            da_color,ac_color,bd_color);
     }
-  }
+  }*/
 }
 
 
 
 void Balloon::PackBalloonVelocities(float* &current) {
-
+/*
   float thickness = 0.005 * mesh_data->bb_max_dim;
   float dt = mesh_data->timestep;
       
@@ -231,7 +231,7 @@ void Balloon::PackBalloonVelocities(float* &current) {
                       Vec3f(1,0,0),Vec3f(1,1,0),thickness,thickness);
       
     }
-  }
+  }*/
 }
 
 
@@ -249,7 +249,10 @@ void Balloon::PackBalloonForces(float* &current) {
 }
 
 
-Vec3f Balloon::computeGouraudNormal(int i, int j) const {
+Vec3f Balloon::computeGouraudNormal(int i) const {
+    
+    
+    /*
   assert (i >= 0 && i < nx && j >= 0 && j < ny);
 
   Vec3f pos = getParticle(i,j).getPosition();
@@ -273,6 +276,7 @@ Vec3f Balloon::computeGouraudNormal(int i, int j) const {
   Vec3f::Cross3(normal,vns,vwe);
   normal.Normalize();
   return normal;
+     */
 }
 
 // ================================================================================

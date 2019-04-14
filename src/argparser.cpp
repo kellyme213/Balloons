@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "balloon.h"
 #include "cloth.h"
 #include "fluid.h"
 #include "argparser.h"
@@ -27,6 +28,7 @@ ArgParser::ArgParser(int argc, const char *argv[], MeshData *_mesh_data) {
   path = ".";
   cloth = NULL;
   fluid = NULL;
+    balloon = NULL;
   
   // parse the command line arguments
   for (int i = 1; i < argc; i++) {
@@ -36,6 +38,9 @@ ArgParser::ArgParser(int argc, const char *argv[], MeshData *_mesh_data) {
     } else if (argv[i] == std::string("-fluid")) {
       i++; assert (i < argc); 	
       separatePathAndFile(argv[i],path,fluid_file);
+    } else if (argv[i] == std::string("-balloon")) {
+        i++; assert (i < argc);
+        separatePathAndFile(argv[i],path,balloon_file);
     } else if (argv[i] == std::string("-size")) {
       i++; assert (i < argc); 
       mesh_data->width = mesh_data->height = atoi(argv[i]);
@@ -52,7 +57,7 @@ ArgParser::ArgParser(int argc, const char *argv[], MeshData *_mesh_data) {
 
   Load();
   GLOBAL_args = this;
-  packMesh(mesh_data,cloth,fluid);
+  packMesh(mesh_data,cloth,fluid,balloon);
 }
 
 void ArgParser::Load() {
@@ -68,6 +73,14 @@ void ArgParser::Load() {
   } else {
     fluid = NULL;
   }
+    if (balloon_file != "")
+    {
+        balloon = new Balloon(this);
+    }
+    else
+    {
+        balloon = NULL;
+    }
 }
 
 void ArgParser::separatePathAndFile(const std::string &input, std::string &path, std::string &file) {
@@ -101,13 +114,18 @@ void ArgParser::separatePathAndFile(const std::string &input, std::string &path,
 
 
 
-void packMesh(MeshData *mesh_data, Cloth *cloth, Fluid *fluid) {
+void packMesh(MeshData *mesh_data, Cloth *cloth, Fluid *fluid, Balloon *balloon) {
   if (cloth != NULL)
     cloth->PackMesh();
 
   if (fluid != NULL)
     fluid->PackMesh();
 
+    if (balloon != NULL)
+    {
+        balloon->PackMesh();
+    }
+    
   BoundingBox bbox;
   if (cloth != NULL) {
     bbox = cloth->getBoundingBox();

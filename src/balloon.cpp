@@ -1,4 +1,11 @@
+#include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cstring>
+#include <set>
+#include <cstdlib>
+#include <algorithm>
 #include "balloon.h"
 #include "argparser.h"
 #include "utils.h"
@@ -9,15 +16,219 @@ extern MeshData *mesh_data;
 // ================================================================================
 // ================================================================================
 
-//TODO
+struct Face;
+
+std::vector<Face> getFacesWithVertex(int n, std::vector<Face>& faces)
+{
+    std::vector<Face> ret;
+    for (int x = 0; x < faces.size(); x++)
+    {
+        if (faces[x].contains(n))
+        {
+            ret.push_back(faces[x]);
+        }
+    }
+    
+    return ret;
+}
+
+#define MAX_CHAR_PER_LINE 200
+
 Balloon::Balloon(ArgParser *_args) {
   args =_args;
 
   // open the file
-  std::ifstream istr(std::string(args->path+'/'+args->cloth_file).c_str());
+  std::ifstream istr(std::string(args->path+'/'+args->balloon_file).c_str());
+    
   assert (istr.good());
   std::string token;
+    char line[MAX_CHAR_PER_LINE];
 
+    std::vector<Face> faces;
+    std::vector<Vec3f> vertices;
+    while (istr.getline(line,MAX_CHAR_PER_LINE))
+    {
+        std::stringstream ss;
+        ss << line;
+        
+        // check for blank line
+        token = "";
+        ss >> token;
+        if (token == "") continue;
+        if (token == "#")
+        {
+            continue;
+        }
+        
+        if (token == "v")
+        {
+            float x;
+            float y;
+            float z;
+            ss >> x >> y >> z;
+            
+            vertices.push_back(Vec3f(x, y, z));
+        }
+        else if (token == "f")
+        {
+            Face f;
+            
+            ss >> f.v[0] >> f.v[1] >> f.v[2] >> f.v[3];
+            f.v[0] -= 1;
+            f.v[1] -= 1;
+            f.v[2] -= 1;
+            f.v[3] -= 1;
+
+            faces.push_back(f);
+        }
+    }
+    
+    
+    particles = new BalloonParticle[vertices.size()];
+    
+    for (int x = 0; x < vertices.size(); x++)
+    {
+        BalloonParticle& p = particles[x];
+        
+        p.setOriginalPosition(vertices[x]);
+        p.setPosition(vertices[x]);
+        p.setVelocity(Vec3f(0,0,0));
+        p.setMass(1.0);
+    }
+    
+
+    for (int x = 0; x < vertices.size(); x++)
+    {
+        std::vector<Face> collectedFaces = getFacesWithVertex(x, faces);
+        
+        std::set<int> uniqueVerts;
+        for (int y = 0; y < collectedFaces.size(); y++)
+        {
+            uniqueVerts.insert(collectedFaces[y].v[0]);
+            uniqueVerts.insert(collectedFaces[y].v[1]);
+            uniqueVerts.insert(collectedFaces[y].v[2]);
+            uniqueVerts.insert(collectedFaces[y].v[3]);
+        }
+        uniqueVerts.erase(x);
+        
+        bool containsStructural = false;
+        for (std::set<int>::iterator itr = uniqueVerts.begin();
+             itr != uniqueVerts.end(); itr++)
+        {
+            int testVert = *itr;
+            for (int y = 0; y < collectedFaces.size(); y++)
+            {
+                int connectivity = collectedFaces[y].connectivity(x, testVert);
+                
+                if (connectivity == 0) //shear
+                {
+                    ShearSpring spring;
+                    spring.leftParticle = &particles[x];
+                    spring.rightParticle = &particles[testVert];
+                    particles[x].shear_springs.push_back(spring);
+                    std::cout << x << " " << testVert << std::endl;
+                }
+                else if (connectivity == 1) //structural
+                {
+                    StructuralSpring spring;
+                    spring.leftParticle = &particles[x];
+                    spring.rightParticle = &particles[testVert];
+                    particles[x].structural_springs.push_back(spring);
+                    containsStructural = true;
+                }
+            }
+            
+            if (!containsStructural)
+            {
+                continue;
+            }
+            
+            std::vector<Face> collectedFaces2 = getFacesWithVertex(testVert, faces);
+            
+            std::set<int> uniqueVerts2;
+            for (int y = 0; y < collectedFaces2.size(); y++)
+            {
+                uniqueVerts2.insert(collectedFaces2[y].v[0]);
+                uniqueVerts2.insert(collectedFaces2[y].v[1]);
+                uniqueVerts2.insert(collectedFaces2[y].v[2]);
+                uniqueVerts2.insert(collectedFaces2[y].v[3]);
+            }
+            uniqueVerts2.erase(testVert);
+            
+            //ugh
+            for (std::set<int>::iterator itr2 = uniqueVerts2.begin();
+                 itr2 != uniqueVerts2.end(); itr2++)
+            {
+                int testVert2 = *itr2;
+                if (testVert2 == x)
+                {
+                    continue;
+                }
+                
+                for (int y = 0; y < collectedFaces.size(); y++)
+                {
+                    int connectivity = collectedFaces[y].connectivity(x, testVert);
+                    if (connectivity == 1)
+                    {
+
+                        for (int z = 0; z < collectedFaces2.size(); z++)
+                        {
+                            int connectivity2 = collectedFaces2[z].connectivity(testVert, testVert2);
+                            if (connectivity2 == 1)
+                            {
+                                bool badSpring = false;
+                                for (int n = 0; n < collectedFaces.size() && !badSpring; n++)
+                                {
+                                    if (collectedFaces[n].connectivity(x, testVert2) >= 0)
+                                    {
+                                        badSpring = true;
+                                    }
+                                }
+                                
+                                for (int n = 0; n < collectedFaces2.size() && !badSpring; n++)
+                                {
+                                    if (collectedFaces2[n].connectivity(x, testVert2) >= 0)
+                                    {
+                                        badSpring = true;
+                                    }
+                                }
+                                if (badSpring)
+                                {
+                                    continue;
+                                }
+                                
+                                AngularSpring spring1;
+                                spring1.leftParticle = &particles[x];
+                                spring1.rightParticle = &particles[testVert2];
+                                spring1.middleParticle = &particles[testVert];
+                                particles[x].angular_springs.push_back(spring1);
+                                std::cout << x << " " << testVert << " " << testVert2 << std::endl;
+                                
+                                FlexionSpring spring2;
+                                spring1.leftParticle = &particles[x];
+                                spring1.rightParticle = &particles[testVert2];
+                                particles[x].flexion_springs.push_back(spring2);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    this->mesh_faces = faces;
+
+    std::cout << std::endl;
+    for (int x = 0; x < vertices.size(); x++)
+    {
+        std::cout << x << std::endl;
+        std::cout << particles[x].structural_springs.size() << " ";
+        std::cout << particles[x].shear_springs.size() << " ";
+        std::cout << particles[x].angular_springs.size() << " ";
+        std::cout << particles[x].flexion_springs.size() << std::endl;
+
+    }
+/*
   // read in the simulation parameters
   istr >> token >> k_structural; assert (token == "k_structural");  // (units == N/m)  (N = kg*m/s^2)
   istr >> token >> k_shear; assert (token == "k_shear");
@@ -84,41 +295,24 @@ Balloon::Balloon(ArgParser *_args) {
   }
 
   computeBoundingBox();
+ */
 }
 
 // ================================================================================
 
 void Balloon::computeBoundingBox() {
+    /*
   box = BoundingBox(getParticle(0,0).getPosition());
   for (int i = 0; i < nx; i++) {
     for (int j = 0; j < ny; j++) {
       box.Extend(getParticle(i,j).getPosition());
       box.Extend(getParticle(i,j).getOriginalPosition());
     }
-  }
+  }*/
 }
 
 // ================================================================================
 
-Vec3f Balloon::calculateForce(int i1, int j1, int i2, int j2, double k_constant)
-{
-    if (i1 < 0 || i1 >= nx || i2 < 0 || i2 >= nx || j1 < 0 || j1 >= ny || j2 < 0 || j2 >= ny)
-    {
-        return Vec3f(0, 0, 0);
-    }
-    BalloonParticle p1 = getParticle(i1, j1);
-    BalloonParticle p2 = getParticle(i2, j2);
-    Vec3f originalLength = p2.original_position - p1.original_position;
-    Vec3f currentLength = p2.position - p1.position;
-    double dist = currentLength.Length() - originalLength.Length();
-    currentLength.Normalize();
-    return k_constant * dist * currentLength;
-}
-
-bool Balloon::particleExists(int i, int j)
-{
-    return i >= 0 && i < nx && j >= 0 && j < ny;
-}
 
 double Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant)
 {
@@ -126,64 +320,6 @@ double Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_c
     Vec3f currentLength = p2.position - p1.position;
     
     return (currentLength.Length() / originalLength.Length());
-}
-static int num = 0;
-void Balloon::provotCorrection(int i1, int j1, int i2, int j2, double k_constant)
-{
-    
-    if (particleExists(i2, j2))
-    {
-        double stretchAmount = isStretched(getParticle(i1, j1), getParticle(i2, j2), k_constant);
-        if (stretchAmount > 1.0 + k_constant)
-        {
-            num++;
-            if (num > 10000000)
-            {
-            //std::cerr << stretchAmount << std::endl;
-            }
-            BalloonParticle p1 = getParticle(i1, j1);
-            BalloonParticle p2 = getParticle(i2, j2);
-            Vec3f originalLength = p2.original_position - p1.original_position;
-            //std::cout << originalLength.Length();
-            
-            Vec3f direction = p2.position - p1.position;
-            //direction.Normalize();
-            direction *= originalLength.Length();
-            direction *= stretchAmount - 1.0 - k_constant;
-            
-            //std::cout << direction.Length() << " " << stretchAmount * originalLength.Length() << std::endl;
-            if (p1.fixed)
-            {
-                getParticle(i2, j2).position -= direction;
-            }
-            else if (p2.fixed)
-            {
-                getParticle(i1, j1).position += direction;
-            }
-            else
-            {
-                getParticle(i1, j1).position += 0.5 * direction;
-                getParticle(i2, j2).position -= 0.5 * direction;
-            }
-            
-            Vec3f p = getParticle(i2, j2).position - getParticle(i1, j1).position;
-            //std::cout << p.Length() / originalLength.Length() << " " << stretchAmount << std::endl;
-            
-        }
-        else
-        {
-            //std::cout << "boo" << rand() << std::endl;
-        }
-    }
-    
-    // a = total length
-    // b = extra stretch
-    // n = rest length
-    // b = a - n
-    // b + n -> b
-    // * b / b + n
-    // * a - n / n
-    
 }
 
 static float blah = 0;
@@ -200,103 +336,5 @@ void Balloon::Animate() {
   //
   // *********************************************************************    
 
-    /*
-    Vec3f gravity(rand() % 500 - 250,
-                  rand() % 500 - 250,
-                  rand() % 500 - 250);
-*/
-    Vec3f gravity(args->mesh_data->gravity.data[0],
-                  args->mesh_data->gravity.data[1],// * 50 * cos(blah),
-                  args->mesh_data->gravity.data[2]);
-    
-    double smallest = 10000;
-    double largest = -1;
-    
-    blah += 0.001;
-    for (int i = 0; i < nx; i++)
-    {
-        for (int j = 0; j < ny; j++)
-        {
-            Vec3f structuralTotal;
-            Vec3f shearTotal;
-            Vec3f flexTotal;
-            
-            structuralTotal += calculateForce(i, j, i, j + 1, k_structural);
-            structuralTotal += calculateForce(i, j, i, j - 1, k_structural);
-            structuralTotal += calculateForce(i, j, i + 1, j, k_structural);
-            structuralTotal += calculateForce(i, j, i - 1, j, k_structural);
-            
-            shearTotal += calculateForce(i, j, i + 1, j + 1, k_shear);
-            shearTotal += calculateForce(i, j, i - 1, j - 1, k_shear);
-            shearTotal += calculateForce(i, j, i + 1, j - 1, k_shear);
-            shearTotal += calculateForce(i, j, i - 1, j + 1, k_shear);
-
-            flexTotal += calculateForce(i, j, i, j + 2, k_bend);
-            flexTotal += calculateForce(i, j, i, j - 2, k_bend);
-            flexTotal += calculateForce(i, j, i + 2, j, k_bend);
-            flexTotal += calculateForce(i, j, i - 2, j, k_bend);
-
-            Vec3f totalForce = structuralTotal + shearTotal + flexTotal;
-            totalForce += -damping * getParticle(i, j).velocity;
-            totalForce += getParticle(i, j).mass * gravity;
-            
-            Vec3f acceleration = (1.0 / getParticle(i, j).mass) * totalForce;
-            getParticle(i, j).new_acceleration = acceleration;
-            
-            if (acceleration.Length() > largest)
-            {
-                largest = acceleration.Length();
-            }
-            
-            if (acceleration.Length() < smallest)
-            {
-                smallest = acceleration.Length();
-            }
-            
-            if (acceleration.Length() * args->mesh_data->timestep > 5.0)
-            {
-                args->mesh_data->timestep /= 2.0;
-                std::cout << "Halving timestep to " << args->mesh_data->timestep << std::endl;
-            }
-        }
-    }
-    
-    for (int i = 0; i < nx; i++)
-    {
-        for (int j = 0; j < ny; j++)
-        {
-            Vec3f acceleration = getParticle(i, j).new_acceleration;
-            
-            Vec3f velocity = args->mesh_data->timestep * (0.5 * (acceleration + getParticle(i, j).acceleration)) + getParticle(i, j).velocity;
-            Vec3f position = args->mesh_data->timestep * (0.5 * (velocity + getParticle(i, j).velocity)) + getParticle(i, j).position;
-            
-            getParticle(i, j).acceleration = acceleration;
-            getParticle(i, j).velocity = velocity;
-            if (!getParticle(i, j).fixed)
-            {
-                getParticle(i, j).position = position;
-            }
-        }
-    }
-    
-    
-    for (int n = 0; n < 4; n++)
-    {
-    for (int i = 0; i < nx; i++)
-    {
-        for (int j = 0; j < ny; j++)
-        {
-            provotCorrection(i, j, i, j + 1, provot_structural_correction);
-            //provotCorrection(i, j, i, j - 1, provot_structural_correction);
-            provotCorrection(i, j, i + 1, j, provot_structural_correction);
-            //provotCorrection(i, j, i - 1, j, provot_structural_correction);
-            
-            provotCorrection(i, j, i + 1, j + 1, provot_shear_correction);
-            //provotCorrection(i, j, i - 1, j - 1, provot_shear_correction);
-            provotCorrection(i, j, i + 1, j - 1, provot_shear_correction);
-            //provotCorrection(i, j, i - 1, j + 1, provot_shear_correction);
-        }
-    }
-    }
-
+   
 }
