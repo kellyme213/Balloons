@@ -29,10 +29,12 @@ private:
   MeshData *mesh_data;
 
   GLuint cloth_tris_VBO;
+    GLuint balloon_tris_VBO;
   GLuint fluid_points_VBO;
   GLuint fluid_tris_VBO;
   
   GLuint cloth_VaoId;
+    GLuint balloon_VaoId;
   GLuint fluid_points_VaoId;
   GLuint fluid_VaoId;
 

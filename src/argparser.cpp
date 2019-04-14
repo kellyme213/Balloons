@@ -133,7 +133,7 @@ void packMesh(MeshData *mesh_data, Cloth *cloth, Fluid *fluid, Balloon *balloon)
     bbox = fluid->getBoundingBox();
   } else if (balloon != NULL)
     {
-        balloon->getBoundingBox();
+        bbox = balloon->getBoundingBox();
     }
 
   // the boundingbox center and size will be used to adjust the camera

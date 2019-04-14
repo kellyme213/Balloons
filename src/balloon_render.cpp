@@ -28,8 +28,8 @@ void Balloon::AddWireFrameTriangle(float* &current,
     bccolor=white;
     cacolor=white;
   }
-    std::cout << apos << bpos << cpos << std::endl;
-    std::cout << anormal << bnormal << cnormal << std::endl;
+    //std::cout << apos << bpos << cpos << std::endl;
+    //std::cout << anormal << bnormal << cnormal << std::endl;
     //std::cout << apos << bpos << cpos << std::endl;
 
   // Draw 3 triangles if wireframe is active
@@ -58,6 +58,8 @@ void Balloon::AddWireFrameTriangle(float* &current,
 
 Vec3f super_elastic_color(const BalloonParticle &a, const BalloonParticle &b, double correction) {
 
+    return Vec3f(0,0,0);
+    
   Vec3f a_o, b_o, a_c, b_c;
   a_c = a.getPosition();
   b_c = b.getPosition();
@@ -84,7 +86,7 @@ void Balloon::PackMesh() {
   int new_balloon_tri_count = 0;
 
   if (mesh_data->surface) {
-      new_balloon_tri_count += 12 * 2 * mesh_faces.size();//(nx-1) * (ny-1);
+      new_balloon_tri_count += 12 * 4 * mesh_faces.size();//(nx-1) * (ny-1);
   }
   if (mesh_data->velocity) {
     //new_balloon_tri_count += 12 * (nx) * (ny);
@@ -104,7 +106,7 @@ void Balloon::PackMesh() {
   if (mesh_data->balloonTriCount != new_balloon_tri_count) {
     delete [] mesh_data->balloonTriData;
     mesh_data->balloonTriCount = new_balloon_tri_count;
-      //std::cout <<mesh_data->balloonTriCount;
+      std::cout <<mesh_data->balloonTriCount;
     // allocate space for the new data
     if (mesh_data->balloonTriCount == 0) {
       mesh_data->balloonTriData = 0;
@@ -150,7 +152,6 @@ void Balloon::PackBalloonSurface(float* &current) {
   //   |/                     \|
   //   d-----------------------c
   //
-    std::cout << "HI" << std::endl;
   // mesh surface positions & normals
     for (int i = 0; i < mesh_faces.size(); i++) {
   //for (int i = 0; i < nx-1; i++) {
@@ -258,6 +259,7 @@ void Balloon::PackBalloonForces(float* &current) {
 
 Vec3f Balloon::computeGouraudNormal(int i) const {
     
+    return Vec3f(0,0,0);
     
     /*
   assert (i >= 0 && i < nx && j >= 0 && j < ny);

@@ -86,9 +86,11 @@ OpenGLRenderer::OpenGLRenderer(MeshData *_mesh_data, ArgParser *args) {
 void OpenGLRenderer::setupVBOs() {
   HandleGLError("enter setupVBOs");
   glGenVertexArrays(1, &cloth_VaoId);
+    glGenVertexArrays(1, &balloon_VaoId);
   glGenVertexArrays(1, &fluid_points_VaoId);
   glGenVertexArrays(1, &fluid_VaoId);
   glGenBuffers(1, &cloth_tris_VBO);
+    glGenBuffers(1, &balloon_tris_VBO);
   glGenBuffers(1, &fluid_points_VBO);
   glGenBuffers(1, &fluid_tris_VBO);
   HandleGLError("leaving setupVBOs");
@@ -128,6 +130,17 @@ void OpenGLRenderer::updateVBOs() {
   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 3*sizeof(glm::vec4), (void*)sizeof(glm::vec4));
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 3*sizeof(glm::vec4), (void*)(sizeof(glm::vec4)*2));
+    
+    glBindVertexArray(balloon_VaoId);
+    glBindBuffer(GL_ARRAY_BUFFER, balloon_tris_VBO);
+    sizeOfVertices = 3*sizeof(glm::vec4) * mesh_data->balloonTriCount * 3;
+    glBufferData(GL_ARRAY_BUFFER, sizeOfVertices, mesh_data->balloonTriData, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 3*sizeof(glm::vec4), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 3*sizeof(glm::vec4), (void*)sizeof(glm::vec4));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 3*sizeof(glm::vec4), (void*)(sizeof(glm::vec4)*2));
 
   glBindVertexArray(fluid_points_VaoId);
   glBindBuffer(GL_ARRAY_BUFFER, fluid_points_VBO);
@@ -159,6 +172,11 @@ void OpenGLRenderer::drawMesh() const {
   glBindVertexArray(cloth_VaoId);
   glBindBuffer(GL_ARRAY_BUFFER, cloth_tris_VBO);
   glDrawArrays(GL_TRIANGLES, 0, 3 * mesh_data->clothTriCount);
+    
+    glBindVertexArray(balloon_VaoId);
+    glBindBuffer(GL_ARRAY_BUFFER, balloon_tris_VBO);
+    glDrawArrays(GL_TRIANGLES, 0, 3 * mesh_data->balloonTriCount);
+    
   glBindVertexArray(fluid_points_VaoId);
   glBindBuffer(GL_ARRAY_BUFFER, fluid_points_VBO);
   glPointSize(2.0);
@@ -171,9 +189,11 @@ void OpenGLRenderer::drawMesh() const {
 
 void OpenGLRenderer::cleanupMesh() {
   glDeleteBuffers(1, &cloth_tris_VBO);
+    glDeleteBuffers(1, &balloon_tris_VBO);
   glDeleteBuffers(1, &fluid_points_VBO);
   glDeleteBuffers(1, &fluid_tris_VBO);
   glDeleteBuffers(1, &cloth_VaoId);
+    glDeleteBuffers(1, &balloon_VaoId);
   glDeleteBuffers(1, &fluid_points_VaoId);
   glDeleteBuffers(1, &fluid_VaoId);
 }
