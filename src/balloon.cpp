@@ -10,6 +10,9 @@
 #include "argparser.h"
 #include "utils.h"
 #include "meshdata.h"
+#if _WIN32
+#include <windows.h>
+#endif
 
 extern MeshData *mesh_data;
 
@@ -391,9 +394,27 @@ Balloon::Balloon(ArgParser *_args) {
     std::cout << flexionTotal << " flexion." << std::endl << std::endl;
     if (trianglesInMesh > 0)
     {
-        std::cout << "\033[1;4;31mWARNING: " << trianglesInMesh << " TRIANGLES IN MESH." << std::endl;
-        std::cout << "BAD BAD BAD!!!!!!" << std::endl;
-        std::cout << "ONLY USE QUADS PLEASE.\033[0m" << std::endl;
+		#if _WIN32
+
+			HANDLE  hConsole;
+			hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(hConsole, 244);
+			std::cout << "WARNING: " << trianglesInMesh << " TRIANGLES IN MESH." << std::endl;
+			std::cout << "BAD BAD BAD!!!!!!" << std::endl;
+			std::cout << "ONLY USE QUADS PLEASE." << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+
+		#endif
+
+		#if __APPLE__
+
+			std::cout << "\033[1;4;31mWARNING: " << trianglesInMesh << " TRIANGLES IN MESH." << std::endl;
+			std::cout << "BAD BAD BAD!!!!!!" << std::endl;
+			std::cout << "ONLY USE QUADS PLEASE.\033[0m" << std::endl;
+
+		#endif
+
+
         std::cout << "thank you." << std::endl << std::endl;
     }
     
