@@ -113,6 +113,7 @@ Balloon::Balloon(ArgParser *_args) {
 
     std::vector<Face> faces;
     std::vector<Vec3f> vertices;
+    int trianglesInMesh = 0;
     while (istr.getline(line,MAX_CHAR_PER_LINE))
     {
         std::stringstream ss;
@@ -139,12 +140,17 @@ Balloon::Balloon(ArgParser *_args) {
         else if (token == "f")
         {
             Face f;
-            
+            f.v[0] = f.v[1] = f.v[2] = f.v[3] = 0;
             ss >> f.v[0] >> f.v[1] >> f.v[2] >> f.v[3];
             f.v[0] -= 1;
             f.v[1] -= 1;
             f.v[2] -= 1;
             f.v[3] -= 1;
+            if (f.v[3] < 0)
+            {
+                trianglesInMesh++;
+                f.v[3] = f.v[2];
+            }
 
             faces.push_back(f);
         }
@@ -385,6 +391,13 @@ Balloon::Balloon(ArgParser *_args) {
     std::cout << shearTotal << " shear, ";
     std::cout << angularTotal << " angular, ";
     std::cout << flexionTotal << " flexion." << std::endl << std::endl;
+    if (trianglesInMesh > 0)
+    {
+        std::cout << "\033[1;4;31mWARNING: " << trianglesInMesh << " TRIANGLES IN MESH." << std::endl;
+        std::cout << "BAD BAD BAD!!!!!!" << std::endl;
+        std::cout << "ONLY USE QUADS PLEASE.\033[0m" << std::endl;
+        std::cout << "thank you." << std::endl << std::endl;
+    }
     
     computeBoundingBox();
 }
