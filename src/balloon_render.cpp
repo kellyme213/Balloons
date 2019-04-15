@@ -195,7 +195,6 @@ void Balloon::PackBalloonSurface(float* &current) {
         normal.Normalize();
         a_normal = b_normal = c_normal = d_normal = normal;
       }
-      
         Vec3f x_normal = (a_normal+b_normal+c_normal+d_normal);
       x_normal.Normalize();
         //a_normal = b_normal = c_normal = d_normal = x_normal;

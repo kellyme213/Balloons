@@ -20,7 +20,7 @@ struct Face;
 
 void Balloon::computeFaceNormals()
 {
-    for (Face f: this->mesh_faces)
+    for (Face& f: this->mesh_faces)
     {
         f.normal = 0.5 * (computeNormal(particles[f.v[0]].position,
                                         particles[f.v[1]].position,
