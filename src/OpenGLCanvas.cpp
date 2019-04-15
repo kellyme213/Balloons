@@ -56,7 +56,7 @@ void OpenGLCanvas::initialize(ArgParser *_args, MeshData *_mesh_data, OpenGLRend
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // Create a GLFW window
-  window = glfwCreateWindow(mesh_data->width,mesh_data->height, "ACG HW1 MESHES", NULL, NULL);
+  window = glfwCreateWindow(mesh_data->width,mesh_data->height, "🎈🎈🎈🎈🎈", NULL, NULL);
   if (!window) {
     std::cerr << "ERROR: Failed to open GLFW window" << std::endl;
     glfwTerminate();

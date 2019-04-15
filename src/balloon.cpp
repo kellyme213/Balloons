@@ -183,9 +183,7 @@ Balloon::Balloon(ArgParser *_args) {
     
     for (int x = 0; x < vertices.size(); x++)
     {
-        
         std::vector<Face> collectedFaces = idsToFaces(particles[x].nearest_faces, this->mesh_faces);//getFacesWithVertex(x, faces);
-        
         /*
         std::set<int> uniqueVerts;
         for (int y = 0; y < collectedFaces.size(); y++)

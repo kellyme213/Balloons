@@ -74,7 +74,7 @@ else()
   # Following the instructions for Windows here:
   # http://www.cs.rpi.edu/~cutler/classes/advancedgraphics/S19/opengl_install_notes.php
   # the graphics librarys files are placed in this directory
-  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:\\GraphicsLibraries")
+  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:\\graphicsLibraries")
 
 endif ()
 
