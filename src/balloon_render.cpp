@@ -152,6 +152,8 @@ void Balloon::PackBalloonSurface(float* &current) {
   //   d-----------------------c
   //
   // mesh surface positions & normals
+    computeFaceNormals();
+    
     for (int i = 0; i < mesh_faces.size(); i++) {
   //for (int i = 0; i < nx-1; i++) {
     //for (int j = 0; j < ny-1; j++) {
@@ -169,10 +171,10 @@ void Balloon::PackBalloonSurface(float* &current) {
 
       Vec3f x_pos = (a_pos+b_pos+c_pos+d_pos) * 0.25f;
 
-        Vec3f a_normal;// = computeGouraudNormal(i,j);
-        Vec3f b_normal;// = computeGouraudNormal(i,j+1);
-        Vec3f c_normal;// = computeGouraudNormal(i+1,j+1);
-        Vec3f d_normal;// = computeGouraudNormal(i+1,j);
+        Vec3f a_normal = computeGouraudNormal(f.v[0]);
+        Vec3f b_normal = computeGouraudNormal(f.v[1]);
+        Vec3f c_normal = computeGouraudNormal(f.v[2]);
+        Vec3f d_normal = computeGouraudNormal(f.v[3]);
       if (!mesh_data->gouraud) {
         // compute normals at each corner and average them
         Vec3f top = b_pos-a_pos;
@@ -187,9 +189,9 @@ void Balloon::PackBalloonSurface(float* &current) {
         a_normal = b_normal = c_normal = d_normal = normal;
       }
       
-        Vec3f x_normal = Vec3f(1,1,1);//(a_normal+b_normal+c_normal+d_normal);
+        Vec3f x_normal = (a_normal+b_normal+c_normal+d_normal);
       x_normal.Normalize();
-        a_normal = b_normal = c_normal = d_normal = x_normal;
+        //a_normal = b_normal = c_normal = d_normal = x_normal;
 
       Vec3f ab_color = super_elastic_color(a,b,provot_structural_correction);
       Vec3f bc_color = super_elastic_color(b,c,provot_structural_correction);
@@ -260,7 +262,18 @@ Vec3f Balloon::computeGouraudNormal(int i) const {
     
     //return Vec3f(0,0,0);
     
-    Face f = mesh_faces[i];
+    Vec3f normal;
+    
+    for (int n: particles[i].nearest_faces)
+    {
+        normal += mesh_faces[n].normal;
+    }
+    
+    normal.Normalize();
+    return normal;
+    
+    /*
+    //Face f = mesh_faces[i];
   //assert (i >= 0 && i < nx && j >= 0 && j < ny);
 
   Vec3f pos = particles[f.v[0]].getPosition();
@@ -284,7 +297,7 @@ Vec3f Balloon::computeGouraudNormal(int i) const {
   Vec3f::Cross3(normal,vns,vwe);
   normal.Normalize();
   return normal;
-    
+    */
 }
 
 // ================================================================================

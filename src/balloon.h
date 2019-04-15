@@ -22,6 +22,7 @@ struct AngularSpring;
 struct Face
 {
     int v[4];
+    Vec3f normal;
     
     bool contains(int n)
     {
@@ -141,6 +142,7 @@ private:
     Vec3f computeGouraudNormal(int i) const;
   // HELPER FUNCTION
   void computeBoundingBox();
+    void computeFaceNormals();
 
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,

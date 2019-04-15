@@ -18,6 +18,20 @@ extern MeshData *mesh_data;
 
 struct Face;
 
+void Balloon::computeFaceNormals()
+{
+    for (Face f: this->mesh_faces)
+    {
+        f.normal = 0.5 * (computeNormal(particles[f.v[0]].position,
+                                        particles[f.v[1]].position,
+                                        particles[f.v[2]].position) +
+                          computeNormal(particles[f.v[1]].position,
+                                        particles[f.v[2]].position,
+                                        particles[f.v[3]].position));
+    }
+}
+
+
 std::vector<Face> idsToFaces(std::vector<int>& ids, std::vector<Face>& faces)
 {
     std::vector<Face> ret;
