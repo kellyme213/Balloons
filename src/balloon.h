@@ -104,6 +104,8 @@ public:
     int particle_id;
     std::vector<int> nearest_faces;
     std::vector<int> nearest_particles;
+    bool valid_cache = false;
+    Vec3f cached_normal;
 
 };
 

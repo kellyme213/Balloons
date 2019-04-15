@@ -154,6 +154,13 @@ void Balloon::PackBalloonSurface(float* &current) {
   // mesh surface positions & normals
     computeFaceNormals();
     
+    
+    //reset the cached normals
+    for (int i = 0; i < mesh_vertices.size(); i++)
+    {
+        particles[i].valid_cache = false;
+    }
+    
     for (int i = 0; i < mesh_faces.size(); i++) {
   //for (int i = 0; i < nx-1; i++) {
     //for (int j = 0; j < ny-1; j++) {
@@ -262,6 +269,12 @@ Vec3f Balloon::computeGouraudNormal(int i) const {
     
     //return Vec3f(0,0,0);
     
+    //if normal has already been calculated this iteration
+    if (particles[i].valid_cache)
+    {
+        return particles[i].cached_normal;
+    }
+    
     Vec3f normal;
     
     for (int n: particles[i].nearest_faces)
@@ -270,6 +283,11 @@ Vec3f Balloon::computeGouraudNormal(int i) const {
     }
     
     normal.Normalize();
+    
+    //cache the normal
+    particles[i].valid_cache = true;
+    particles[i].cached_normal = normal;
+    
     return normal;
     
     /*
