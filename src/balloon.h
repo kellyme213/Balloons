@@ -99,6 +99,10 @@ public:
     std::vector<StructuralSpring> structural_springs;
     std::vector<FlexionSpring> flexion_springs;
     std::vector<AngularSpring> angular_springs;
+    Balloon* balloon;
+    int particle_id;
+    std::vector<int> nearest_faces;
+    std::vector<int> nearest_particles;
 
 };
 

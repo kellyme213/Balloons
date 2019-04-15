@@ -18,6 +18,17 @@ extern MeshData *mesh_data;
 
 struct Face;
 
+std::vector<Face> idsToFaces(std::vector<int>& ids, std::vector<Face>& faces)
+{
+    std::vector<Face> ret;
+    for (int id: ids)
+    {
+        ret.push_back(faces[id]);
+    }
+    
+    return ret;
+}
+
 std::vector<Face> getFacesWithVertex(int n, std::vector<Face>& faces)
 {
     std::vector<Face> ret;
@@ -26,6 +37,48 @@ std::vector<Face> getFacesWithVertex(int n, std::vector<Face>& faces)
         if (faces[x].contains(n))
         {
             ret.push_back(faces[x]);
+        }
+    }
+    
+    return ret;
+}
+
+std::vector<int> getClosestParticles(int n, std::vector<int>& face_ids, std::vector<Face>& faces)
+{
+    std::set<int> verts;
+    
+    for (int x = 0; x < face_ids.size(); x++)
+    {
+        Face f = faces[face_ids[x]];
+        
+        verts.insert(f.v[0]);
+        verts.insert(f.v[1]);
+        verts.insert(f.v[2]);
+        verts.insert(f.v[3]);
+    }
+    
+    if (verts.find(n) != verts.end())
+    {
+        verts.erase(verts.find(n));
+    }
+    
+    std::vector<int> ret;
+    for (std::set<int>::iterator itr = verts.begin(); itr != verts.end(); itr++)
+    {
+        ret.push_back(*itr);
+    }
+    
+    return ret;
+}
+
+std::vector<int> getFacesIDWithVertex(int n, std::vector<Face>& faces)
+{
+    std::vector<int> ret;
+    for (int x = 0; x < faces.size(); x++)
+    {
+        if (faces[x].contains(n))
+        {
+            ret.push_back(x);
         }
     }
     
@@ -94,13 +147,26 @@ Balloon::Balloon(ArgParser *_args) {
         p.setPosition(vertices[x]);
         p.setVelocity(Vec3f(0,0,0));
         p.setMass(1.0);
+        p.balloon = this;
+        p.particle_id = x;
     }
     
-
+    this->mesh_faces = faces;
+    this->mesh_vertices = vertices;
+    
     for (int x = 0; x < vertices.size(); x++)
     {
-        std::vector<Face> collectedFaces = getFacesWithVertex(x, faces);
+        BalloonParticle& p = particles[x];
+        p.nearest_faces = getFacesIDWithVertex(x, faces);
+        p.nearest_particles = getClosestParticles(x, p.nearest_faces, faces);
+    }
+    
+    for (int x = 0; x < vertices.size(); x++)
+    {
         
+        std::vector<Face> collectedFaces = idsToFaces(particles[x].nearest_faces, this->mesh_faces);//getFacesWithVertex(x, faces);
+        
+        /*
         std::set<int> uniqueVerts;
         for (int y = 0; y < collectedFaces.size(); y++)
         {
@@ -110,12 +176,13 @@ Balloon::Balloon(ArgParser *_args) {
             uniqueVerts.insert(collectedFaces[y].v[3]);
         }
         uniqueVerts.erase(x);
-        
+        */
         bool containsStructural = false;
-        for (std::set<int>::iterator itr = uniqueVerts.begin();
-             itr != uniqueVerts.end(); itr++)
+        //for (std::set<int>::iterator itr = uniqueVerts.begin();
+        //     itr != uniqueVerts.end(); itr++)
+        for (int testVert: particles[x].nearest_particles)
         {
-            int testVert = *itr;
+            //int testVert = *itr;
             for (int y = 0; y < collectedFaces.size(); y++)
             {
                 int connectivity = collectedFaces[y].connectivity(x, testVert);
@@ -171,9 +238,9 @@ Balloon::Balloon(ArgParser *_args) {
                 continue;
             }
             
-            std::vector<Face> collectedFaces2 = getFacesWithVertex(testVert, faces);
+            std::vector<Face> collectedFaces2 = idsToFaces(particles[testVert].nearest_faces, this->mesh_faces);//getFacesWithVertex(testVert, faces);
             
-            std::set<int> uniqueVerts2;
+            /*std::set<int> uniqueVerts2;
             for (int y = 0; y < collectedFaces2.size(); y++)
             {
                 uniqueVerts2.insert(collectedFaces2[y].v[0]);
@@ -182,12 +249,13 @@ Balloon::Balloon(ArgParser *_args) {
                 uniqueVerts2.insert(collectedFaces2[y].v[3]);
             }
             uniqueVerts2.erase(testVert);
-            
+            */
             //ugh
-            for (std::set<int>::iterator itr2 = uniqueVerts2.begin();
-                 itr2 != uniqueVerts2.end(); itr2++)
+            //for (std::set<int>::iterator itr2 = uniqueVerts2.begin();
+            //     itr2 != uniqueVerts2.end(); itr2++)
+            for (int testVert2: particles[testVert].nearest_particles)
             {
-                int testVert2 = *itr2;
+                //int testVert2 = *itr2;
                 if (testVert2 == x)
                 {
                     continue;
@@ -273,88 +341,37 @@ Balloon::Balloon(ArgParser *_args) {
         }
     }
     
-    this->mesh_faces = faces;
-    this->mesh_vertices = vertices;
-    /*
+
+    int shearTotal = 0;
+    int structuralTotal = 0;
+    int angularTotal = 0;
+    int flexionTotal = 0;
+    
+    
     std::cout << std::endl;
     for (int x = 0; x < vertices.size(); x++)
     {
-        std::cout << x << std::endl;
-        std::cout << particles[x].structural_springs.size() << " ";
-        std::cout << particles[x].shear_springs.size() << " ";
-        std::cout << particles[x].angular_springs.size() << " ";
-        std::cout << particles[x].flexion_springs.size() << std::endl;
-
+        /*
+        std::cout << "Particle " << x << std::endl;
+        std::cout << particles[x].structural_springs.size() << " structural, ";
+        std::cout << particles[x].shear_springs.size() << " shear, ";
+        std::cout << particles[x].angular_springs.size() << " angular, ";
+        std::cout << particles[x].flexion_springs.size() << " flexion, " << std::endl;
+        */
+        shearTotal += particles[x].shear_springs.size();
+        structuralTotal += particles[x].structural_springs.size();
+        angularTotal += particles[x].angular_springs.size();
+        flexionTotal += particles[x].flexion_springs.size();
     }
-    */
-/*
-  // read in the simulation parameters
-  istr >> token >> k_structural; assert (token == "k_structural");  // (units == N/m)  (N = kg*m/s^2)
-  istr >> token >> k_shear; assert (token == "k_shear");
-  istr >> token >> k_bend; assert (token == "k_bend");
-  istr >> token >> damping; assert (token == "damping");
-  // NOTE: correction factor == .1, means springs shouldn't stretch more than 10%
-  //       correction factor == 100, means don't do any correction
-  istr >> token >> provot_structural_correction; assert (token == "provot_structural_correction");
-  istr >> token >> provot_shear_correction; assert (token == "provot_shear_correction");
-
-  // the cloth dimensions
-  istr >> token >> nx >> ny; 
-  assert (token == "m");
-  assert (nx >= 2 && ny >= 2);
-
-  // the corners of the cloth
-  // (units == meters)
-  Vec3f a,b,c,d;
-  double x,y,z;
-  istr >> token >> x >> y >> z; assert (token == "p");
-  a.set(x,y,z);
-  istr >> token >> x >> y >> z; assert (token == "p");
-  b.set(x,y,z);
-  istr >> token >> x >> y >> z; assert (token == "p");
-  c.set(x,y,z);
-  istr >> token >> x >> y >> z; assert (token == "p");
-  d.set(x,y,z);
-  
-  // fabric weight  (units == kg/m^2)
-  // denim ~300 g/m^2
-  // silk ~70 g/m^2
-  double fabric_weight;
-  istr >> token >> fabric_weight; assert (token == "fabric_weight");
-  double area = AreaOfTriangle(a,b,c) + AreaOfTriangle(a,c,d);
-
-  // create the particles
-  particles = new BalloonParticle[nx*ny];
-  double mass = area*fabric_weight / double(nx*ny);
-  for (int i = 0; i < nx; i++) {
-    double x = i/double(nx-1);
-    Vec3f ab = float(1-x)*a + float(x)*b;
-    Vec3f dc = float(1-x)*d + float(x)*c;
-    for (int j = 0; j < ny; j++) {
-      double y = j/double(ny-1);
-      BalloonParticle &p = getParticle(i,j);
-      Vec3f abdc = float(1-y)*ab + float(y)*dc;
-      p.setOriginalPosition(abdc);
-      p.setPosition(abdc);
-      p.setVelocity(Vec3f(0,0,0));
-      p.setMass(mass);
-      p.setFixed(false);
-    }
-  }
-
-  // the fixed particles
-  while (istr >> token) {
-    assert (token == "f");
-    int i,j;
-    double x,y,z;
-    istr >> i >> j >> x >> y >> z;
-    BalloonParticle &p = getParticle(i,j);
-    p.setPosition(Vec3f(x,y,z));
-    p.setFixed(true);
-  }
-
-  computeBoundingBox();
- */
+    
+    
+    std::cout << std::endl;
+    std::cout << "Loaded " << vertices.size() << " particles, " << this->mesh_faces.size() << " faces, " << std::endl;
+    std::cout << structuralTotal << " structural, ";
+    std::cout << shearTotal << " shear, ";
+    std::cout << angularTotal << " angular, ";
+    std::cout << flexionTotal << " flexion." << std::endl << std::endl;
+    
     computeBoundingBox();
 }
 

@@ -106,7 +106,6 @@ void Balloon::PackMesh() {
   if (mesh_data->balloonTriCount != new_balloon_tri_count) {
     delete [] mesh_data->balloonTriData;
     mesh_data->balloonTriCount = new_balloon_tri_count;
-      std::cout <<mesh_data->balloonTriCount;
     // allocate space for the new data
     if (mesh_data->balloonTriCount == 0) {
       mesh_data->balloonTriData = 0;
