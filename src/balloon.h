@@ -53,8 +53,9 @@ private:
     Vec3f computeGouraudNormal(int i) const;
   // HELPER FUNCTION
   void computeBoundingBox();
-    void computeFaceNormals();
-    void collisionDetection();
+  void computeFaceNormals();
+  void collisionDetection();
+  Vec3f isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
 
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,
@@ -81,8 +82,6 @@ private:
   double provot_shear_correction;
     std::vector<Sphere> spheres;
     //int num_spheres = 1;
-    
-    double isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
 };
 
 // ========================================================================

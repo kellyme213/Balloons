@@ -47,7 +47,7 @@ public:
 
   Cloth *cloth;
   Fluid *fluid;
-    Balloon* balloon;
+  Balloon* balloon;
   MeshData *mesh_data;
   BoundingBox *bbox;
 };

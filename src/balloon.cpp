@@ -14,6 +14,7 @@
 #include <windows.h>
 #endif
 
+using namespace std;
 extern MeshData *mesh_data;
 
 // ================================================================================
@@ -382,15 +383,6 @@ void Balloon::computeBoundingBox() {
 
 // ================================================================================
 
-
-double Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant)
-{
-    Vec3f originalLength = p2.original_position - p1.original_position;
-    Vec3f currentLength = p2.position - p1.position;
-    
-    return (currentLength.Length() / originalLength.Length());
-}
-
 void Balloon::collisionDetection()
 {
     for (int x = 0; x < spheres.size(); x++)
@@ -399,23 +391,66 @@ void Balloon::collisionDetection()
     }
 }
 
+Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant)
+{
+    //p1 is the particle we are "looking at"
+    //p2 is the particle connected to it
+    Vec3f originalLength = p1.original_position - p2.original_position;
+    Vec3f currentLength = p1.position - p2.position;
 
+    Vec3f p0pos = p1.position;
+    Vec3f p0orig = p1.original_position;
+    Vec3f p1pos = p2.position;
+    Vec3f p1orig = p2.original_position;
 
+    double stretch = (p0pos - p1pos).Length();
+    double rest = (p0orig - p1orig).Length();
+
+    Vec3f fvec = ((p0pos - p1pos) *(1/stretch))*(stretch-rest);
+    return fvec * k_constant;
+}
 
 void Balloon::Animate() {
-
-
-  // *********************************************************************  
-  // ASSIGNMENT:
-  //
-  // Compute the forces on each particle, and update the state
-  // (position & velocity) of each particle.
-  //
-  // Also, this is where you'll put the Provot correction for super-elasticity
-  //
-  // *********************************************************************    
-
+    // *********************************************************************  
+    // ASSIGNMENT:
+    //
+    // Compute the forces on each particle, and update the state
+    // (position & velocity) of each particle.
+    //
+    // Also, this is where you'll put the Provot correction for super-elasticity
+    //
+    // *********************************************************************    
    
-    collisionDetection();
-    
+    //collisionDetection();
+    float timestep = mesh_data->timestep;
+    float g[3];
+    g[0] = mesh_data->gravity.data[0];
+    g[1] = mesh_data->gravity.data[1];
+    g[2] = mesh_data->gravity.data[2];
+    Vec3f gravity(-g[0],-g[1],-g[2]);
+    Vec3f helium(0.0, 9.9, 0.0);
+    for(int i = 0; i < mesh_vertices.size(); i++){
+        if(particles[i].isFixed() == false){
+            BalloonParticle p = particles[i];
+            Vec3f springforces(0.0, 0.0, 0.0);
+            for(int j = 0; j < p.shear_springs.size(); j++){
+                springforces += isStretched(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, k_shear);
+            }
+            for(int k = 0; k < p.structural_springs.size(); k++){
+                springforces += isStretched(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, k_structural);
+            }
+            for(int l = 0; l < p.flexion_springs.size(); l++){
+                springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, k_bend);
+            }
+            Vec3f gravforces = gravity * particles[i].getMass();
+            Vec3f dampforces = damping * particles[i].getVelocity();
+            Vec3f totforces = gravforces - (springforces + dampforces);
+            Vec3f acc = totforces*(1/particles[i].getMass());
+            Vec3f nvel = particles[i].getVelocity() + timestep*(acc);
+            Vec3f npos  = particles[i].getPosition() + (timestep*nvel);
+            particles[i].setVelocity(nvel);
+            particles[i].setAcceleration(acc);
+            particles[i].setPosition(npos);
+        }
+    }
 }
