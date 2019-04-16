@@ -1,0 +1,9 @@
+k_shear 2
+k_angular 2
+k_flexion 2
+k_structural 2
+
+string_pos 0 0 0
+
+use_string
+

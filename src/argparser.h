@@ -43,6 +43,7 @@ public:
   std::string cloth_file;
   std::string fluid_file;
     std::string balloon_file;
+    std::string input_file;
   std::string path;
 
   Cloth *cloth;

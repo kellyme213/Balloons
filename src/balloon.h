@@ -81,6 +81,9 @@ private:
   double provot_structural_correction;
   double provot_shear_correction;
     std::vector<Sphere> spheres;
+    Vec3f string_pos;
+    int string_id = -1;
+    bool use_string = false;
     //int num_spheres = 1;
 };
 
