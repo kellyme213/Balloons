@@ -114,6 +114,8 @@ set (SRCS
   ${PROJECT_SOURCE_DIR}/spring.cpp
   ${PROJECT_SOURCE_DIR}/balloon.cpp
   ${PROJECT_SOURCE_DIR}/balloon_render.cpp
+  ${PROJECT_SOURCE_DIR}/sphere.cpp
+  ${PROJECT_SOURCE_DIR}/face.cpp
   ${OS_SPECIFIC_FILES}
   )
 
