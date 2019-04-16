@@ -353,6 +353,17 @@ Balloon::Balloon(ArgParser *_args) {
     }
     
     computeBoundingBox();
+    
+    Sphere s(_args);// = new Sphere[num_spheres];
+    
+    //Sphere s(_args);
+    
+    s.position = Vec3f(1, 1, 1);
+    s.radius = 0.5;
+    
+    spheres.push_back(s);
+    
+    std::cout << spheres[0].particles.size() << std::endl;
 }
 
 // ================================================================================
@@ -380,7 +391,17 @@ double Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_c
     return (currentLength.Length() / originalLength.Length());
 }
 
-static float blah = 0;
+void Balloon::collisionDetection()
+{
+    for (int x = 0; x < spheres.size(); x++)
+    {
+        spheres[x].Animate();
+    }
+}
+
+
+
+
 void Balloon::Animate() {
 
 
@@ -395,4 +416,6 @@ void Balloon::Animate() {
   // *********************************************************************    
 
    
+    collisionDetection();
+    
 }

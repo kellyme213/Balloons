@@ -54,6 +54,7 @@ private:
   // HELPER FUNCTION
   void computeBoundingBox();
     void computeFaceNormals();
+    void collisionDetection();
 
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,
@@ -65,7 +66,7 @@ private:
   ArgParser *args;
   // grid data structure
   //int nx, ny;
-  BalloonParticle *particles;
+    BalloonParticle* particles;
   BoundingBox box;
     std::vector<Face> mesh_faces;
     std::vector<Vec3f> mesh_vertices;
@@ -79,6 +80,7 @@ private:
   double provot_structural_correction;
   double provot_shear_correction;
     std::vector<Sphere> spheres;
+    //int num_spheres = 1;
     
     double isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
 };

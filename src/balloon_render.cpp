@@ -87,6 +87,11 @@ void Balloon::PackMesh() {
 
   if (mesh_data->surface) {
       new_balloon_tri_count += 12 * 4 * mesh_faces.size();//(nx-1) * (ny-1);
+      if (spheres.size() > 0)
+      {
+          new_balloon_tri_count += 12 * 4 * spheres[0].mesh_faces.size() * spheres.size();
+      }
+
   }
   if (mesh_data->velocity) {
     //new_balloon_tri_count += 12 * (nx) * (ny);
@@ -119,6 +124,11 @@ void Balloon::PackMesh() {
 
   if (mesh_data->surface) {
     PackBalloonSurface(current);
+      
+      for (int x = 0; x < spheres.size(); x++)
+      {
+          spheres[x].PackSphereSurface(current);
+      }
   }
   if (mesh_data->velocity) {
     PackBalloonVelocities(current);

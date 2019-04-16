@@ -15,7 +15,7 @@ class Sphere {
 
 public:
   Sphere(ArgParser *args);
-    ~Sphere() { delete [] particles; }
+    ~Sphere() { /*delete [] particles;*/ }
 
   // ACCESSORS
   const BoundingBox& getBoundingBox() const { return box; }
@@ -24,12 +24,16 @@ public:
   void PackMesh();
   void PackSphereSurface(float* &current);
   void Animate();
-
+    std::vector<Face> mesh_faces;
+    std::vector<Vec3f> mesh_vertices;
+    Vec3f position;
+    float radius;
+    std::vector<BalloonParticle> particles;
 private:
 
   // PRIVATE ACCESSORS
   //Vec3f computeGouraudNormal(int i, int j) const;
-    Vec3f computeGouraudNormal(int i) const;
+    Vec3f computeGouraudNormal(int i);
   // HELPER FUNCTION
   void computeBoundingBox();
     void computeFaceNormals();
@@ -45,11 +49,8 @@ private:
   // grid data structure
   //int nx, ny;
   BoundingBox box;
-    std::vector<Face> mesh_faces;
-    std::vector<Vec3f> mesh_vertices;
-    Vec3f position;
-    float radius;
-    BalloonParticle* particles;
+
+
 };
 
 // ========================================================================
