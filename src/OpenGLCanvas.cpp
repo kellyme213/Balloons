@@ -258,6 +258,14 @@ void OpenGLCanvas::keyboardCB(GLFWwindow* window, int key, int scancode, int act
     case 'q':  case 'Q':
       exit(0);
       break;
+    case 18:
+        mesh_data->k_normal -= 0.1;
+        std::cout << "k_normal: " << mesh_data->k_normal << std::endl;
+        break;
+    case 19:
+        mesh_data->k_normal += 0.1;
+        std::cout << "k_normal: " << mesh_data->k_normal << std::endl;
+        break;
     default:
       std::cout << "UNKNOWN KEYBOARD INPUT  '" << (char)key << "'" << std::endl;
     }

@@ -71,6 +71,7 @@ typedef struct MeshData {
   float bb_max_dim;
   float bb_scale;
   bool use_provot;
+    float k_normal;
   
 } MeshData;
 

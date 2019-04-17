@@ -84,11 +84,15 @@ private:
   double provot_shear_correction;
     double provot_flexion_correction;
     double provot_angular_correction;
+    double k_string;
+    double string_stretch;
+    double k_normal = 1.0;
     std::vector<Sphere> spheres;
     Vec3f string_pos;
     int string_id = -1;
     bool use_string = false;
     bool use_provot = false;
+    BalloonParticle string_particle;
     //int num_spheres = 1;
 };
 

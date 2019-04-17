@@ -54,6 +54,7 @@ void INIT_MeshData(MeshData *mesh_data) {
   mesh_data->gravity.data[1] = -9.8;
   mesh_data->gravity.data[2] = 0;
     mesh_data->use_provot = false;
+    mesh_data->k_normal = 1.0;
 }
 
 

@@ -488,6 +488,18 @@ Balloon::Balloon(ArgParser *_args) {
         {
             this->use_provot = true;
         }
+        else if (token == "k_string")
+        {
+            ss >> this->k_string;
+        }
+        else if (token == "string_stretch")
+        {
+            ss >> this->string_stretch;
+        }
+        else if (token == "k_normal")
+        {
+            ss >> this->k_normal;
+        }
         
     }
     
@@ -505,6 +517,10 @@ Balloon::Balloon(ArgParser *_args) {
             }
         }
     }
+    
+    string_particle.setOriginalPosition(string_pos);
+    string_particle.setPosition(string_pos);
+
 }
 
 // ================================================================================
@@ -614,6 +630,7 @@ void Balloon::Animate() {
     //collisionDetection();
     
     this->use_provot = mesh_data->use_provot;
+    this->k_normal = mesh_data->k_normal;
     float timestep = mesh_data->timestep;
     float g[3];
     g[0] = mesh_data->gravity.data[0];
@@ -625,7 +642,7 @@ void Balloon::Animate() {
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
             Vec3f inflate = particles[i].cached_normal;
-            inflate.Normalize();
+            inflate *= k_normal;
             BalloonParticle p = particles[i];
             Vec3f springforces(0.0, 0.0, 0.0);
             for(int j = 0; j < p.shear_springs.size(); j++){
@@ -636,6 +653,16 @@ void Balloon::Animate() {
             }
             for(int l = 0; l < p.flexion_springs.size(); l++){
                 springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
+            }
+            
+            if (i == string_id && use_string)
+            {
+                double dist = (string_pos - particles[i].position).Length();
+                double orig_dist = (string_pos - particles[i].original_position).Length();
+                if (string_stretch * orig_dist < dist)
+                {
+                    springforces += isStretched(particles[i], string_particle, k_string);
+                }
             }
             Vec3f gravforces = gravity * particles[i].getMass();
             Vec3f dampforces = damping * particles[i].getVelocity();

@@ -155,7 +155,11 @@ extern void Load();
         break;
       }
     case (KEY_Q): 
-      { printf ("quit\n"); exit(0); }
+        { printf ("quit\n"); exit(0); break;}
+    case (18):
+        { mesh_data->k_normal -= 0.1; printf("k_normal: %f\n", mesh_data->k_normal); break;}
+    case (19):
+        { mesh_data->k_normal += 0.1; printf("k_normal: %f\n", mesh_data->k_normal); break;}
     default:
       { printf ("UNKNOWN key down %d\n", event.keyCode); break; }
     }

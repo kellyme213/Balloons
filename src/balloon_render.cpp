@@ -217,6 +217,33 @@ void Balloon::PackBalloonSurface(float* &current) {
       Vec3f ac_color = super_elastic_color(a,c,provot_shear_correction);
       Vec3f bd_color = super_elastic_color(b,d,provot_shear_correction);
 
+        
+        if (f.v[0] == string_id || f.v[1] == string_id)
+        {
+            ab_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        if (f.v[1] == string_id || f.v[2] == string_id)
+        {
+            bc_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        if (f.v[2] == string_id || f.v[3] == string_id)
+        {
+            cd_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        if (f.v[3] == string_id || f.v[0] == string_id)
+        {
+            da_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        
+        if (f.v[0] == string_id || f.v[2] == string_id)
+        {
+            ac_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        if (f.v[1] == string_id || f.v[3] == string_id)
+        {
+            bd_color = Vec3f(75.0 / 255.0, 0.0, 130.0/255.0);
+        }
+        
       AddWireFrameTriangle(current,
                            a_pos,b_pos,x_pos, 
                            a_normal,b_normal,x_normal,
