@@ -7,10 +7,12 @@ string_pos 0 0 0
 
 use_string
 damping 0.1
-f 0
+f 507
 m 0.001
 
 struct_cor 0.2
 shear_cor 0.2
 flex_cor 0.2
 ang_cor 0.1
+
+use_provot

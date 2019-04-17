@@ -88,6 +88,7 @@ private:
     Vec3f string_pos;
     int string_id = -1;
     bool use_string = false;
+    bool use_provot = false;
     //int num_spheres = 1;
 };
 

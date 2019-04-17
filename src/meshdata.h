@@ -70,6 +70,7 @@ typedef struct MeshData {
   float3 bb_center;
   float bb_max_dim;
   float bb_scale;
+  bool use_provot;
   
 } MeshData;
 

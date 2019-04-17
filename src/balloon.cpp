@@ -484,6 +484,10 @@ Balloon::Balloon(ArgParser *_args) {
         {
             ss >> this->provot_angular_correction;
         }
+        else if (token == "use_provot")
+        {
+            this->use_provot = true;
+        }
         
     }
     
@@ -608,6 +612,8 @@ void Balloon::Animate() {
     // *********************************************************************    
    
     //collisionDetection();
+    
+    this->use_provot = mesh_data->use_provot;
     float timestep = mesh_data->timestep;
     float g[3];
     g[0] = mesh_data->gravity.data[0];
@@ -643,5 +649,9 @@ void Balloon::Animate() {
             particles[i].setPosition(npos);
         }
     }
-    ProvotCorrection();
+    
+    if (use_provot)
+    {
+        ProvotCorrection();
+    }
 }

@@ -116,7 +116,8 @@ extern void Load();
       break;
     }
     case (KEY_P): {
-      mesh_data->pressure = !mesh_data->pressure;
+      //mesh_data->pressure = !mesh_data->pressure;
+      mesh_data->use_provot = !mesh_data->use_provot;
       PackMesh();
       [renderer reGenerate];
       break;
