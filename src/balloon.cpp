@@ -495,6 +495,53 @@ void Balloon::collisionDetection()
     }
 }
 
+void Balloon::Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint){
+      //p0 is the particle we are "looking at"
+    //p1 is the particle connected to it
+    Vec3f p0pos = p1.getPosition();
+    Vec3f p0orig = p1.getOriginalPosition();
+    Vec3f p1pos = p2.getPosition();
+    Vec3f p1orig = p2.getOriginalPosition();
+
+    double stretch = (p0pos - p1pos).Length();
+    double rest = (p0orig - p1orig).Length();
+    double ratio = (stretch/rest) - 1.0;
+
+    if(ratio > constraint){
+        Vec3f diff = p0pos - p1pos;
+        rest *= 1.0 + constraint;
+        double half = ((diff.Length() - rest)/diff.Length());
+        
+        if(p1.isFixed() == false){
+        p1.setPosition(p0pos - (diff * (half * 0.5)));
+        }else{
+        p2.setPosition(p1pos + (diff * half));
+        }
+        if(p2.isFixed() == false){
+        p2.setPosition(p1pos + (diff * (half * 0.5)));
+        }else{
+        p1.setPosition(p0pos - (diff * half));
+        }
+    }
+}
+
+void Balloon::ProvotCorrection(){
+    for(int i = 0; i < mesh_vertices.size(); i++){
+        BalloonParticle p = particles[i];
+        Vec3f springforces(0.0, 0.0, 0.0);
+        for(int j = 0; j < p.shear_springs.size(); j++){
+            Correct(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, provot_shear_correction);
+        }
+        for(int k = 0; k < p.structural_springs.size(); k++){
+            Correct(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, provot_structural_correction);
+        }
+        /*
+        for(int l = 0; l < p.flexion_springs.size(); l++){
+            Correct(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
+        }*/
+    }
+}
+
 Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant)
 {
     //p1 is the particle we are "looking at"
@@ -562,4 +609,5 @@ void Balloon::Animate() {
             particles[i].setPosition(npos);
         }
     }
+    ProvotCorrection();
 }
