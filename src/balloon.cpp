@@ -701,10 +701,10 @@ void Balloon::Animate() {
             
             particles[c_id].position = s.radius * dir + s.position;
             
-            s.force -= 1 * dir;
+            s.force -= particles[c_id].structural_springs[0].k_constant * dir;
         }
         
-        s.force += s.mass * gravity;// - (damping * s.velocity);
+        s.force += s.mass * gravity- (0.1 * damping * s.velocity);
         s.acceleration = (1.0 / s.mass) * s.force;
         s.velocity += s.acceleration * timestep;
         s.position += s.velocity * timestep;
