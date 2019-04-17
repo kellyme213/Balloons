@@ -558,19 +558,22 @@ void Balloon::Correct(BalloonParticle& p1, BalloonParticle& p2, double constrain
 }
 
 void Balloon::ProvotCorrection(){
-    for(int i = 0; i < mesh_vertices.size(); i++){
-        BalloonParticle p = particles[i];
-        Vec3f springforces(0.0, 0.0, 0.0);
-        for(int j = 0; j < p.shear_springs.size(); j++){
-            Correct(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, provot_shear_correction);
+    int iterations = 6;
+    for(int its = 0; its < iterations; its++){  
+        for(int i = 0; i < mesh_vertices.size(); i++){
+            BalloonParticle p = particles[i];
+            Vec3f springforces(0.0, 0.0, 0.0);
+            for(int j = 0; j < p.shear_springs.size(); j++){
+                Correct(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, provot_shear_correction);
+            }
+            for(int k = 0; k < p.structural_springs.size(); k++){
+                Correct(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, provot_structural_correction);
+            }
+            
+            for(int l = 0; l < p.flexion_springs.size(); l++){
+                Correct(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, provot_flexion_correction);
+            }
         }
-        for(int k = 0; k < p.structural_springs.size(); k++){
-            Correct(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, provot_structural_correction);
-        }
-        /*
-        for(int l = 0; l < p.flexion_springs.size(); l++){
-            Correct(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
-        }*/
     }
 }
 
