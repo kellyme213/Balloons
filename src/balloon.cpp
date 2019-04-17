@@ -537,6 +537,8 @@ void Balloon::Animate() {
     //cout <<"timestep: " <<timestep << endl;
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
+            Vec3f inflate = particles[i].cached_normal;
+            inflate.Normalize();
             BalloonParticle p = particles[i];
             Vec3f springforces(0.0, 0.0, 0.0);
             for(int j = 0; j < p.shear_springs.size(); j++){
@@ -551,6 +553,7 @@ void Balloon::Animate() {
             Vec3f gravforces = gravity * particles[i].getMass();
             Vec3f dampforces = damping * particles[i].getVelocity();
             Vec3f totforces = gravforces - (springforces + dampforces);
+            totforces += inflate;
             Vec3f acc = totforces*(1/particles[i].getMass());
             Vec3f nvel = particles[i].getVelocity() + timestep*(acc);
             Vec3f npos  = particles[i].getPosition() + (timestep*nvel);
