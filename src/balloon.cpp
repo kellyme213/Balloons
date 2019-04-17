@@ -452,6 +452,12 @@ Balloon::Balloon(ArgParser *_args) {
         {
             ss >> this->damping;
         }
+        else if (token == "f")
+        {
+            int n;
+            ss >> n;
+            particles[n].fixed = true;
+        }
         
     }
     
@@ -580,8 +586,7 @@ void Balloon::Animate() {
     g[2] = mesh_data->gravity.data[2];
     Vec3f gravity(g[0],-g[1],g[2]);
     Vec3f helium(0.0, 9.9, 0.0);
-    particles[0].fixed = true;
-    //cout <<"timestep: " <<timestep << endl;
+    
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
             Vec3f inflate = particles[i].cached_normal;
