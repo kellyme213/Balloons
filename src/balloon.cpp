@@ -355,16 +355,116 @@ Balloon::Balloon(ArgParser *_args) {
     
     computeBoundingBox();
     
-    Sphere s(_args);// = new Sphere[num_spheres];
+
     
+    std::ifstream istr2(std::string(args->path+'/'+args->input_file).c_str());
     //Sphere s(_args);
     
-    s.position = Vec3f(1, 1, 1);
-    s.radius = 0.5;
+    assert (istr2.good());
     
-    spheres.push_back(s);
+    while (istr2.getline(line,MAX_CHAR_PER_LINE))
+    {
+        std::stringstream ss;
+        ss << line;
+        
+        // check for blank line
+        token = "";
+        ss >> token;
+        if (token == "") continue;
+        
+        if (token == "k_shear")
+        {
+            float k;
+            ss >> k;
+            
+            for (int x = 0; x < mesh_vertices.size(); x++)
+            {
+                for (ShearSpring& s: particles[x].shear_springs)
+                {
+                    s.k_constant = k;
+                }
+            }
+        }
+        else if (token == "k_structural")
+        {
+            float k;
+            ss >> k;
+            
+            for (int x = 0; x < mesh_vertices.size(); x++)
+            {
+                for (StructuralSpring& s: particles[x].structural_springs)
+                {
+                    s.k_constant = k;
+                }
+            }
+        }
+        else if (token == "k_angular")
+        {
+            float k;
+            ss >> k;
+            
+            for (int x = 0; x < mesh_vertices.size(); x++)
+            {
+                for (AngularSpring& s: particles[x].angular_springs)
+                {
+                    s.k_constant = k;
+                }
+            }
+        }
+        else if (token == "k_flexion")
+        {
+            float k;
+            ss >> k;
+            
+            for (int x = 0; x < mesh_vertices.size(); x++)
+            {
+                for (FlexionSpring& s: particles[x].flexion_springs)
+                {
+                    s.k_constant = k;
+                }
+            }
+        }
+        else if (token == "string_pos")
+        {
+            float x, y, z;
+            ss >> x >> y >> z;
+            string_pos = Vec3f(x, y, z);
+        }
+        else if (token == "string_id")
+        {
+            ss >> string_id;
+        }
+        else if (token == "s")
+        {
+            float x, y, z, r;
+            ss >> x >> y >> z >> r;
+            
+            Sphere s(_args);
+            s.position = Vec3f(x, y, z);
+            s.radius = r;
+            spheres.push_back(s);
+        }
+        else if (token == "use_string")
+        {
+            use_string = true;
+        }
+        
+    }
     
-    std::cout << spheres[0].particles.size() << std::endl;
+    if (string_id == -1 && use_string)
+    {
+        float distance = (particles[0].getOriginalPosition() - string_pos).Length();
+        
+        for (int x = 0; x < mesh_vertices.size(); x++)
+        {
+            float new_distance = (particles[x].getOriginalPosition() - string_pos).Length();
+            if (distance > new_distance)
+            {
+                distance = new_distance;
+                string_id = x;
+            }
+        }
+    }
 }
 
 // ================================================================================
