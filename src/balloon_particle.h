@@ -43,22 +43,22 @@ public:
   Vec3f velocity;
   Vec3f acceleration;
     
-    //Vec3f new_position;
-    //Vec3f new_velocity;
-    Vec3f new_acceleration;
+  //Vec3f new_position;
+  //Vec3f new_velocity;
+  Vec3f new_acceleration;
   double mass;
-  bool fixed;
-    
-    std::vector<ShearSpring> shear_springs;
-    std::vector<StructuralSpring> structural_springs;
-    std::vector<FlexionSpring> flexion_springs;
-    std::vector<AngularSpring> angular_springs;
-    Balloon* balloon;
-    int particle_id;
-    std::vector<int> nearest_faces;
-    std::vector<int> nearest_particles;
-    bool valid_cache = false;
-    Vec3f cached_normal;
+  bool fixed = false;
+  
+  std::vector<ShearSpring> shear_springs;
+  std::vector<StructuralSpring> structural_springs;
+  std::vector<FlexionSpring> flexion_springs;
+  std::vector<AngularSpring> angular_springs;
+  Balloon* balloon;
+  int particle_id;
+  std::vector<int> nearest_faces;
+  std::vector<int> nearest_particles;
+  bool valid_cache = false;
+  Vec3f cached_normal;
 
 };
 

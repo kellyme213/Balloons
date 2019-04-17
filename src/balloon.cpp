@@ -355,114 +355,16 @@ Balloon::Balloon(ArgParser *_args) {
     
     computeBoundingBox();
     
+    Sphere s(_args);// = new Sphere[num_spheres];
     
-    std::ifstream istr2(std::string(args->path+'/'+args->input_file).c_str());
+    //Sphere s(_args);
     
-    assert (istr2.good());
+    s.position = Vec3f(1, 1, 1);
+    s.radius = 0.5;
     
-    while (istr2.getline(line,MAX_CHAR_PER_LINE))
-    {
-        std::stringstream ss;
-        ss << line;
-        
-        // check for blank line
-        token = "";
-        ss >> token;
-        if (token == "") continue;
-        
-        if (token == "k_shear")
-        {
-            float k;
-            ss >> k;
-            
-            for (int x = 0; x < mesh_vertices.size(); x++)
-            {
-                for (ShearSpring& s: particles[x].shear_springs)
-                {
-                    s.k_constant = k;
-                }
-            }
-        }
-        else if (token == "k_structural")
-        {
-            float k;
-            ss >> k;
-            
-            for (int x = 0; x < mesh_vertices.size(); x++)
-            {
-                for (StructuralSpring& s: particles[x].structural_springs)
-                {
-                    s.k_constant = k;
-                }
-            }
-        }
-        else if (token == "k_angular")
-        {
-            float k;
-            ss >> k;
-            
-            for (int x = 0; x < mesh_vertices.size(); x++)
-            {
-                for (AngularSpring& s: particles[x].angular_springs)
-                {
-                    s.k_constant = k;
-                }
-            }
-        }
-        else if (token == "k_flexion")
-        {
-            float k;
-            ss >> k;
-            
-            for (int x = 0; x < mesh_vertices.size(); x++)
-            {
-                for (FlexionSpring& s: particles[x].flexion_springs)
-                {
-                    s.k_constant = k;
-                }
-            }
-        }
-        else if (token == "string_pos")
-        {
-            float x, y, z;
-            ss >> x >> y >> z;
-            string_pos = Vec3f(x, y, z);
-        }
-        else if (token == "string_id")
-        {
-            ss >> string_id;
-        }
-        else if (token == "s")
-        {
-            float x, y, z, r;
-            ss >> x >> y >> z >> r;
-            
-            Sphere s(_args);
-            s.position = Vec3f(x, y, z);
-            s.radius = r;
-            spheres.push_back(s);
-        }
-        else if (token == "use_string")
-        {
-            use_string = true;
-        }
-        
-    }
+    spheres.push_back(s);
     
-    if (string_id == -1 && use_string)
-    {
-        float distance = (particles[0].getOriginalPosition() - string_pos).Length();
-        
-        for (int x = 0; x < mesh_vertices.size(); x++)
-        {
-            float new_distance = (particles[x].getOriginalPosition() - string_pos).Length();
-            if (distance > new_distance)
-            {
-                distance = new_distance;
-                string_id = x;
-            }
-        }
-    }
+    std::cout << spheres[0].particles.size() << std::endl;
 }
 
 // ================================================================================
@@ -527,18 +429,20 @@ void Balloon::Animate() {
     g[2] = mesh_data->gravity.data[2];
     Vec3f gravity(-g[0],-g[1],-g[2]);
     Vec3f helium(0.0, 9.9, 0.0);
+    particles[0].fixed = true;
+    cout <<"timestep: " <<timestep << endl;
     for(int i = 0; i < mesh_vertices.size(); i++){
-        if(particles[i].isFixed() == false){
+        if(particles[i].fixed == false){
             BalloonParticle p = particles[i];
             Vec3f springforces(0.0, 0.0, 0.0);
             for(int j = 0; j < p.shear_springs.size(); j++){
-                springforces += isStretched(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, k_shear);
+                springforces += isStretched(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, p.shear_springs[j].k_constant);
             }
             for(int k = 0; k < p.structural_springs.size(); k++){
-                springforces += isStretched(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, k_structural);
+                springforces += isStretched(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, p.structural_springs[k].k_constant);
             }
             for(int l = 0; l < p.flexion_springs.size(); l++){
-                springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, k_bend);
+                springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
             }
             Vec3f gravforces = gravity * particles[i].getMass();
             Vec3f dampforces = damping * particles[i].getVelocity();
