@@ -458,6 +458,32 @@ Balloon::Balloon(ArgParser *_args) {
             ss >> n;
             particles[n].fixed = true;
         }
+        else if (token == "m")
+        {
+            float n;
+            ss >> n;
+            
+            for (int x = 0; x < this->mesh_vertices.size(); x++)
+            {
+                particles[x].mass = n;
+            }
+        }
+        else if (token == "struct_cor")
+        {
+            ss >> this->provot_structural_correction;
+        }
+        else if (token == "shear_cor")
+        {
+            ss >> this->provot_shear_correction;
+        }
+        else if (token == "flex_cor")
+        {
+            ss >> this->provot_flexion_correction;
+        }
+        else if (token == "ang_cor")
+        {
+            ss >> this->provot_angular_correction;
+        }
         
     }
     

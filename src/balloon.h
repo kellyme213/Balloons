@@ -82,6 +82,8 @@ private:
   // correction thresholds
   double provot_structural_correction;
   double provot_shear_correction;
+    double provot_flexion_correction;
+    double provot_angular_correction;
     std::vector<Sphere> spheres;
     Vec3f string_pos;
     int string_id = -1;
