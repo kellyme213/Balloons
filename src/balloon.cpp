@@ -636,8 +636,8 @@ void Balloon::Animate() {
     g[0] = mesh_data->gravity.data[0];
     g[1] = mesh_data->gravity.data[1];
     g[2] = mesh_data->gravity.data[2];
-    Vec3f gravity(g[0],-g[1],g[2]);
-    Vec3f helium(0.0, 9.9, 0.0);
+    Vec3f gravity(g[0],g[1],g[2]);
+    Vec3f helium(0.0, 200 + 5 * k_normal, 0.0);
     
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
@@ -664,7 +664,7 @@ void Balloon::Animate() {
                     springforces += isStretched(particles[i], string_particle, k_string);
                 }
             }
-            Vec3f gravforces = gravity * particles[i].getMass();
+            Vec3f gravforces = (gravity + helium) * particles[i].getMass();
             Vec3f dampforces = damping * particles[i].getVelocity();
             Vec3f totforces = gravforces - (springforces + dampforces);
             totforces += inflate;

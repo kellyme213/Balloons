@@ -2,14 +2,14 @@ k_shear 10
 k_angular 10
 k_flexion 10
 k_structural 50
-k_string 10
+k_string 100
 k_normal -2
 
 string_pos 0 -6 0
 
 use_string
-damping 0.1
-string_stretch 1.1
+damping 0.2
+string_stretch 1.0
 m 0.001
 
 struct_cor 0.1
