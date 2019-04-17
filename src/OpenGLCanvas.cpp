@@ -238,7 +238,8 @@ void OpenGLCanvas::keyboardCB(GLFWwindow* window, int key, int scancode, int act
       mesh_data->cubes = !mesh_data->cubes;
       break; 
     case 'p':  case 'P': 
-      mesh_data->pressure = !mesh_data->pressure;
+      //mesh_data->pressure = !mesh_data->pressure;
+            mesh_data->use_provot = !mesh_data->use_provot;
       break; 
     case 'r':  case 'R': 
       // reset system
