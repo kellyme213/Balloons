@@ -12,6 +12,8 @@ damping 0.2
 string_stretch 1.0
 m 0.001
 
+s -5 5 0 1 0.1 20 0 0
+
 struct_cor 0.1
 shear_cor 0.1
 flex_cor 0.1

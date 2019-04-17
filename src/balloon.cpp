@@ -436,12 +436,16 @@ Balloon::Balloon(ArgParser *_args) {
         }
         else if (token == "s")
         {
-            float x, y, z, r;
-            ss >> x >> y >> z >> r;
+            float x, y, z, r, m, vx, vy, vz;
+            ss >> x >> y >> z >> r >> m;
+            ss >> vx >> vy >> vz;
             
             Sphere s(_args);
             s.position = Vec3f(x, y, z);
+            s.velocity = Vec3f(vx, vy, vz);
             s.radius = r;
+            s.mass = m;
+            s.balloon = this;
             spheres.push_back(s);
         }
         else if (token == "use_string")
@@ -680,5 +684,30 @@ void Balloon::Animate() {
     if (use_provot)
     {
         ProvotCorrection();
+    }
+    
+    for (Sphere& s: spheres)
+    {
+        std::vector<std::pair<int, float>> collision_ids;
+        s.collide(collision_ids);
+        for (int x = 0; x < collision_ids.size(); x++)
+        {
+            std::pair<int, float> pair = collision_ids[x];
+            float dist = pair.second - s.radius;
+            int c_id = pair.first;
+            
+            Vec3f dir = particles[c_id].position - s.position;
+            dir.Normalize();
+            
+            particles[c_id].position = s.radius * dir + s.position;
+            
+            s.force -= 1 * dir;
+        }
+        
+        s.force += s.mass * gravity;// - (damping * s.velocity);
+        s.acceleration = (1.0 / s.mass) * s.force;
+        s.velocity += s.acceleration * timestep;
+        s.position += s.velocity * timestep;
+        s.force = Vec3f(0.0, 0.0, 0.0);
     }
 }

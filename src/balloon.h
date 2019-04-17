@@ -38,7 +38,7 @@ public:
   void PackBalloonForces(float* &current);
   void Animate();
 
-private:
+//private:
 
   // PRIVATE ACCESSORS
     /*

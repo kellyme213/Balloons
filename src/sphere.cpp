@@ -345,3 +345,25 @@ Vec3f Sphere::computeGouraudNormal(int i) {
     return normal;
 }
 
+void Sphere::fastCollide(std::vector<std::pair<int, float>>& collision_ids)
+{
+    
+}
+
+void Sphere::slowCollide(std::vector<std::pair<int, float>>& collision_ids)
+{
+    for (int x = 0; x < balloon->mesh_vertices.size(); x++)
+    {
+        float dist = (balloon->particles[x].position - position).Length();
+        if (dist < radius)
+        {
+            collision_ids.push_back(std::make_pair(x, dist));
+        }
+    }
+}
+
+void Sphere::collide(std::vector<std::pair<int, float>>& collision_ids)
+{
+    slowCollide(collision_ids);
+}
+

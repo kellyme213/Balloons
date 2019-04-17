@@ -29,6 +29,12 @@ public:
     Vec3f position;
     float radius;
     std::vector<BalloonParticle> particles;
+    void collide(std::vector<std::pair<int, float>>& collision_ids);
+    Balloon* balloon;
+    Vec3f force;
+    float mass = 1.0;
+    Vec3f acceleration;
+    Vec3f velocity;
 private:
 
   // PRIVATE ACCESSORS
@@ -37,6 +43,8 @@ private:
   // HELPER FUNCTION
   void computeBoundingBox();
     void computeFaceNormals();
+    void slowCollide(std::vector<std::pair<int, float>>& collision_ids);
+    void fastCollide(std::vector<std::pair<int, float>>& collision_ids);
 
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,
