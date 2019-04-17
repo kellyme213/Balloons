@@ -104,7 +104,7 @@ Balloon::Balloon(ArgParser *_args) {
         p.setOriginalPosition(vertices[x]);
         p.setPosition(vertices[x]);
         p.setVelocity(Vec3f(0,0,0));
-        p.setMass(1.0);
+        p.setMass(0.001);
         p.balloon = this;
         p.particle_id = x;
     }
@@ -448,6 +448,10 @@ Balloon::Balloon(ArgParser *_args) {
         {
             use_string = true;
         }
+        else if (token == "damping")
+        {
+            ss >> this->damping;
+        }
         
     }
     
@@ -527,10 +531,10 @@ void Balloon::Animate() {
     g[0] = mesh_data->gravity.data[0];
     g[1] = mesh_data->gravity.data[1];
     g[2] = mesh_data->gravity.data[2];
-    Vec3f gravity(-g[0],-g[1],-g[2]);
+    Vec3f gravity(g[0],-g[1],g[2]);
     Vec3f helium(0.0, 9.9, 0.0);
     particles[0].fixed = true;
-    cout <<"timestep: " <<timestep << endl;
+    //cout <<"timestep: " <<timestep << endl;
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
             BalloonParticle p = particles[i];
