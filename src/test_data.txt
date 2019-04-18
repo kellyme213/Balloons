@@ -3,7 +3,7 @@ k_angular 10
 k_flexion 10
 k_structural 50
 k_string 100
-k_normal -2
+k_normal 2
 
 string_pos 0 -6 0
 

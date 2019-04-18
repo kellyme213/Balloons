@@ -490,7 +490,7 @@ Balloon::Balloon(ArgParser *_args) {
         }
         else if (token == "use_provot")
         {
-            this->use_provot = true;
+            _args->mesh_data->use_provot = true;
         }
         else if (token == "k_string")
         {
@@ -502,7 +502,7 @@ Balloon::Balloon(ArgParser *_args) {
         }
         else if (token == "k_normal")
         {
-            ss >> this->k_normal;
+            ss >> _args->mesh_data->k_normal;
         }
         
     }
