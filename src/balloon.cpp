@@ -605,6 +605,12 @@ Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_co
 {
     //p1 is the particle we are "looking at"
     //p2 is the particle connected to it
+    
+    if (k_constant <= 0.001)
+    {
+        return Vec3f(0,0,0);
+    }
+    
     Vec3f originalLength = p1.original_position - p2.original_position;
     Vec3f currentLength = p1.position - p2.position;
 
@@ -618,6 +624,38 @@ Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_co
 
     Vec3f fvec = ((p0pos - p1pos) *(1/stretch))*(stretch-rest);
     return fvec * k_constant;
+}
+
+Vec3f Balloon::angularSpring(AngularSpring& spring)
+{
+    
+    if (spring.k_constant <= 0.001)
+    {
+        return Vec3f(0,0,0);
+    }
+    
+    Vec3f lm = spring.leftParticle->position - spring.middleParticle->position;
+    Vec3f rm = spring.rightParticle->position - spring.middleParticle->position;
+
+    Vec3f lmo = spring.leftParticle->original_position - spring.middleParticle->original_position;
+    Vec3f rmo = spring.rightParticle->original_position - spring.middleParticle->original_position;
+    
+    lm.Normalize();
+    rm.Normalize();
+    
+    lmo.Normalize();
+    rmo.Normalize();
+    
+    
+    float angle = acos(lm.Dot3(rm));
+    float o_angle = acos(lmo.Dot3(rmo));
+    
+    float d_angle = angle - o_angle;
+    
+    Vec3f dir = spring.leftParticle->position - spring.rightParticle->position;
+    dir.Normalize();
+    
+    return spring.k_constant * d_angle * dir;
 }
 
 void Balloon::Animate() {
@@ -657,6 +695,11 @@ void Balloon::Animate() {
             }
             for(int l = 0; l < p.flexion_springs.size(); l++){
                 springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
+            }
+            
+            for (AngularSpring& s: p.angular_springs)
+            {
+                springforces += angularSpring(s);
             }
             
             if (i == string_id && use_string)

@@ -1,5 +1,5 @@
 k_shear 10
-k_angular 10
+k_angular 0
 k_flexion 10
 k_structural 50
 k_string 100
