@@ -58,7 +58,9 @@ public:
   Vec3f isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
   void ProvotCorrection();
   void Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint);
-    Vec3f angularSpring(AngularSpring& spring);
+  Vec3f angularSpring(AngularSpring& spring);
+
+  void angleCorrect(double constraint);
 
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,

@@ -253,6 +253,9 @@ Balloon::Balloon(ArgParser *_args) {
                                 spring1.leftParticle = &particles[x];
                                 spring1.rightParticle = &particles[testVert2];
                                 spring1.middleParticle = &particles[testVert];
+                                spring1.setCross();
+                                spring1.setAngle();
+
                                 
                                 bool found = false;
                                 
@@ -585,17 +588,16 @@ void Balloon::ProvotCorrection(){
     int iterations = 6;
     for(int its = 0; its < iterations; its++){  
         for(int i = 0; i < mesh_vertices.size(); i++){
-            BalloonParticle p = particles[i];
             Vec3f springforces(0.0, 0.0, 0.0);
-            for(int j = 0; j < p.shear_springs.size(); j++){
-                Correct(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, provot_shear_correction);
+            for(int j = 0; j < particles[i].shear_springs.size(); j++){
+                Correct(*particles[j].shear_springs[j].leftParticle, *particles[j].shear_springs[j].rightParticle, provot_shear_correction);
             }
-            for(int k = 0; k < p.structural_springs.size(); k++){
-                Correct(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, provot_structural_correction);
+            for(int k = 0; k < particles[i].structural_springs.size(); k++){
+                Correct(*particles[k].structural_springs[k].leftParticle, *particles[k].structural_springs[k].rightParticle, provot_structural_correction);
             }
             
-            for(int l = 0; l < p.flexion_springs.size(); l++){
-                Correct(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, provot_flexion_correction);
+            for(int l = 0; l < particles[i].flexion_springs.size(); l++){
+                Correct(*particles[l].flexion_springs[l].leftParticle, *particles[l].flexion_springs[l].rightParticle, provot_flexion_correction);
             }
         }
     }
@@ -624,6 +626,33 @@ Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_co
 
     Vec3f fvec = ((p0pos - p1pos) *(1/stretch))*(stretch-rest);
     return fvec * k_constant;
+}
+
+void Balloon::angleCorrect(double constraint){
+    for(int i = 0; i < mesh_vertices.size(); i++){
+        for(int j = 0; j < particles[i].angular_springs.size(); j++){
+            double cur_angle = particles[i].angular_springs[j].calculateAngle();
+            double ratio = (cur_angle/particles[i].angular_springs[i].og_angle) - 1.0;
+            
+            if(ratio > constraint){
+                
+
+
+                /*
+                if(p1.isFixed() == false){
+                    p1.setPosition(p0pos - (diff * (half * 0.5)));
+                }else{
+                    p2.setPosition(p1pos + (diff * half));
+                }
+                   
+                if(p2.isFixed() == false){
+                    p2.setPosition(p1pos + (diff * (half * 0.5)));
+                }else{
+                    p1.setPosition(p0pos - (diff * half));
+                }*/
+            }
+        }
+    }
 }
 
 Vec3f Balloon::angularSpring(AngularSpring& spring)
@@ -696,12 +725,12 @@ void Balloon::Animate() {
             for(int l = 0; l < p.flexion_springs.size(); l++){
                 springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
             }
-            
+            /*
             for (AngularSpring& s: p.angular_springs)
             {
                 springforces += angularSpring(s);
             }
-            
+            */
             if (i == string_id && use_string)
             {
                 double dist = (string_pos - particles[i].position).Length();

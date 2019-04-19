@@ -76,6 +76,11 @@ struct AngularSpring: Spring {
     }
     
     BalloonParticle* middleParticle;
+    double og_angle;
+    double calculateAngle();
+    void setAngle();
+    void setCross();
+    Vec3f og_cross;
     Vec3f calculateForce();
 };
 
