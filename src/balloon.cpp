@@ -557,10 +557,11 @@ void Balloon::collisionDetection()
 void Balloon::Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint){
       //p0 is the particle we are "looking at"
     //p1 is the particle connected to it
-    Vec3f p0pos = p1.getPosition();
-    Vec3f p0orig = p1.getOriginalPosition();
-    Vec3f p1pos = p2.getPosition();
-    Vec3f p1orig = p2.getOriginalPosition();
+        
+    Vec3f p0pos = p1.position;
+    Vec3f p0orig = p1.original_position;
+    Vec3f p1pos = p2.position;
+    Vec3f p1orig = p2.original_position;
 
     double stretch = (p0pos - p1pos).Length();
     double rest = (p0orig - p1orig).Length();
@@ -590,14 +591,14 @@ void Balloon::ProvotCorrection(){
         for(int i = 0; i < mesh_vertices.size(); i++){
             Vec3f springforces(0.0, 0.0, 0.0);
             for(int j = 0; j < particles[i].shear_springs.size(); j++){
-                Correct(*particles[j].shear_springs[j].leftParticle, *particles[j].shear_springs[j].rightParticle, provot_shear_correction);
+                Correct(*particles[i].shear_springs[j].leftParticle, *particles[i].shear_springs[j].rightParticle, provot_shear_correction);
             }
             for(int k = 0; k < particles[i].structural_springs.size(); k++){
-                Correct(*particles[k].structural_springs[k].leftParticle, *particles[k].structural_springs[k].rightParticle, provot_structural_correction);
+                Correct(*particles[i].structural_springs[k].leftParticle, *particles[i].structural_springs[k].rightParticle, provot_structural_correction);
             }
             
             for(int l = 0; l < particles[i].flexion_springs.size(); l++){
-                Correct(*particles[l].flexion_springs[l].leftParticle, *particles[l].flexion_springs[l].rightParticle, provot_flexion_correction);
+                Correct(*particles[i].flexion_springs[l].leftParticle, *particles[i].flexion_springs[l].rightParticle, provot_flexion_correction);
             }
         }
     }
