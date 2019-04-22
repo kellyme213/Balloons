@@ -56,8 +56,8 @@ public:
   void computeFaceNormals();
   void collisionDetection();
   Vec3f isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_constant);
-  void ProvotCorrection();
-  void Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint);
+  void OurCorrection();
+  bool Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint);
   Vec3f angularSpring(AngularSpring& spring);
 
   // HELPER FUNCTIONS FOR ANIMATION

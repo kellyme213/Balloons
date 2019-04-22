@@ -27,6 +27,7 @@ struct Spring {
     BalloonParticle* leftParticle;
     BalloonParticle* rightParticle;
     float k_constant;
+    bool force = false;
     
     virtual Vec3f calculateForce() = 0;
     

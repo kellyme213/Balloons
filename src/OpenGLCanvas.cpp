@@ -240,6 +240,10 @@ void OpenGLCanvas::keyboardCB(GLFWwindow* window, int key, int scancode, int act
     case 'p':  case 'P': 
       //mesh_data->pressure = !mesh_data->pressure;
             mesh_data->use_provot = !mesh_data->use_provot;
+            if (mesh_data->use_provot) 
+            printf ("provot on\n");
+          else
+            printf ("provot off\n");
       break; 
     case 'r':  case 'R': 
       // reset system
@@ -258,11 +262,11 @@ void OpenGLCanvas::keyboardCB(GLFWwindow* window, int key, int scancode, int act
     case 'q':  case 'Q':
       exit(0);
       break;
-    case 18:
+    case '1':
         mesh_data->k_normal -= 0.1;
         std::cout << "k_normal: " << mesh_data->k_normal << std::endl;
         break;
-    case 19:
+    case '2':
         mesh_data->k_normal += 0.1;
         std::cout << "k_normal: " << mesh_data->k_normal << std::endl;
         break;
