@@ -94,6 +94,7 @@ public:
     bool use_string = false;
     bool use_provot = false;
     BalloonParticle string_particle;
+    float totalArea;
     //int num_spheres = 1;
 };
 

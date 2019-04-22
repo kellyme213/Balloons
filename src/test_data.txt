@@ -2,18 +2,18 @@ k_shear 10
 k_angular 0
 k_flexion 10
 k_structural 50
-k_string 10
-k_normal 1.0
+k_string 100
+k_normal 10
 
 string_pos 0 -6 0
 
 use_string
 damping 0.2
-string_stretch 1.2
+string_stretch 1.1
 m 0.001
 
-#s -5 5 0 2 10 20 0 0
-#s 0 20 0 5 10 0 -30 0
+s -10 5 0 5 1000 20 0 0
+s 0 20 0 1 10 0 -30 0
 
 struct_cor 0.1
 shear_cor 0.1

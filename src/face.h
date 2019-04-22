@@ -9,6 +9,7 @@ struct Face
 {
     int v[4];
     Vec3f normal;
+    float area;
     
     bool contains(int n)
     {

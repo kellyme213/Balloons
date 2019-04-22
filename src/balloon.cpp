@@ -23,6 +23,7 @@ extern MeshData *mesh_data;
 
 void Balloon::computeFaceNormals()
 {
+    totalArea = 0.0;
     for (Face& f: this->mesh_faces)
     {
         f.normal = 0.5 * (computeNormal(particles[f.v[0]].position,
@@ -31,6 +32,13 @@ void Balloon::computeFaceNormals()
                           computeNormal(particles[f.v[1]].position,
                                         particles[f.v[2]].position,
                                         particles[f.v[3]].position));
+        f.area = AreaOfTriangle(particles[f.v[0]].position,
+                                particles[f.v[1]].position,
+                                particles[f.v[2]].position) +
+                AreaOfTriangle(particles[f.v[1]].position,
+                               particles[f.v[2]].position,
+                               particles[f.v[3]].position);
+        totalArea += f.area;
     }
 }
 
@@ -667,12 +675,12 @@ void Balloon::Animate() {
     g[1] = mesh_data->gravity.data[1];
     g[2] = mesh_data->gravity.data[2];
     Vec3f gravity(g[0],g[1],g[2]);
-    Vec3f helium(0.0, 50 + 5 * k_normal, 0.0);
+    Vec3f helium(0.0, 200 + 5 * k_normal, 0.0);
     
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
             Vec3f inflate = particles[i].cached_normal;
-            inflate *= k_normal * adjusted;
+            //inflate *= k_normal * adjusted;
             BalloonParticle& p = particles[i];
             int count = 0;
             int totalSprings = p.shear_springs.size() + p.structural_springs.size() + p.flexion_springs.size();
@@ -714,7 +722,8 @@ void Balloon::Animate() {
             Vec3f totforces = gravforces - dampforces;
             //if(float(count)/float(totalSprings) >= 0.9){
             float k_val = (float(count)/float(totalSprings));
-                totforces -= k_val * springforces;
+            k_val = 100 * k_normal * (mesh_faces[p.nearest_faces[0]].area / totalArea);
+                totforces -= 1.0 * springforces;
                 totforces += k_val * inflate;
             //}
             Vec3f acc = totforces*(1/particles[i].getMass());
