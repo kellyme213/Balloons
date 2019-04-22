@@ -586,7 +586,7 @@ void Balloon::Correct(BalloonParticle& p1, BalloonParticle& p2, double constrain
 }
 
 void Balloon::ProvotCorrection(){
-    int iterations = 6;
+    int iterations = 1;
     for(int its = 0; its < iterations; its++){  
         for(int i = 0; i < mesh_vertices.size(); i++){
             Vec3f springforces(0.0, 0.0, 0.0);
@@ -627,33 +627,6 @@ Vec3f Balloon::isStretched(BalloonParticle& p1, BalloonParticle& p2, double k_co
 
     Vec3f fvec = ((p0pos - p1pos) *(1/stretch))*(stretch-rest);
     return fvec * k_constant;
-}
-
-void Balloon::angleCorrect(double constraint){
-    for(int i = 0; i < mesh_vertices.size(); i++){
-        for(int j = 0; j < particles[i].angular_springs.size(); j++){
-            double cur_angle = particles[i].angular_springs[j].calculateAngle();
-            double ratio = (cur_angle/particles[i].angular_springs[i].og_angle) - 1.0;
-            
-            if(ratio > constraint){
-                
-
-
-                /*
-                if(p1.isFixed() == false){
-                    p1.setPosition(p0pos - (diff * (half * 0.5)));
-                }else{
-                    p2.setPosition(p1pos + (diff * half));
-                }
-                   
-                if(p2.isFixed() == false){
-                    p2.setPosition(p1pos + (diff * (half * 0.5)));
-                }else{
-                    p1.setPosition(p0pos - (diff * half));
-                }*/
-            }
-        }
-    }
 }
 
 Vec3f Balloon::angularSpring(AngularSpring& spring)
@@ -703,6 +676,10 @@ void Balloon::Animate() {
     
     this->use_provot = mesh_data->use_provot;
     this->k_normal = mesh_data->k_normal;
+    float adjusted = 5.0;
+    if(mesh_vertices.size() > 600){
+        adjusted = 600.0 / mesh_vertices.size();
+    }
     float timestep = mesh_data->timestep;
     float g[3];
     g[0] = mesh_data->gravity.data[0];
@@ -714,7 +691,7 @@ void Balloon::Animate() {
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
             Vec3f inflate = particles[i].cached_normal;
-            inflate *= k_normal;
+            inflate *= k_normal * adjusted;
             BalloonParticle p = particles[i];
             Vec3f springforces(0.0, 0.0, 0.0);
             for(int j = 0; j < p.shear_springs.size(); j++){

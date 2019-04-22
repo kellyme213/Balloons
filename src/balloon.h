@@ -60,8 +60,6 @@ public:
   void Correct(BalloonParticle& p1, BalloonParticle& p2, double constraint);
   Vec3f angularSpring(AngularSpring& spring);
 
-  void angleCorrect(double constraint);
-
   // HELPER FUNCTIONS FOR ANIMATION
   void AddWireFrameTriangle(float* &current,
                             const Vec3f &apos, const Vec3f &bpos, const Vec3f &cpos,
