@@ -561,7 +561,11 @@ bool Balloon::Correct(BalloonParticle& p1, BalloonParticle& p2, double constrain
     if (constraint == 0) c = provot_shear_correction;
     if (constraint == 1) c = provot_structural_correction;
     if (constraint == 2) c = provot_flexion_correction;
-        
+    
+    if (k_normal > 0)
+    {
+        //c += 0.01 * k_normal;
+    }
     Vec3f p0pos = p1.position;
     Vec3f p0orig = p1.original_position;
     Vec3f p1pos = p2.position;
@@ -595,20 +599,20 @@ void Balloon::OurCorrection(){
     for(int i = 0; i < mesh_vertices.size(); i++){
         Vec3f springforces(0.0, 0.0, 0.0);
         for(int j = 0; j < particles[i].shear_springs.size(); j++){
-            if(particles[i].shear_springs[j].force == false){
+            //if(particles[i].shear_springs[j].force == false){
                 particles[i].shear_springs[j].force = Correct(*particles[i].shear_springs[j].leftParticle, *particles[i].shear_springs[j].rightParticle, 0);
-            }
+            //}
         }
         for(int k = 0; k < particles[i].structural_springs.size(); k++){
-            if(particles[i].structural_springs[k].force == false){
+            //if(particles[i].structural_springs[k].force == false){
                 particles[i].structural_springs[k].force = Correct(*particles[i].structural_springs[k].leftParticle, *particles[i].structural_springs[k].rightParticle, 1);
-            }
+            //}
         }
         
         for(int l = 0; l < particles[i].flexion_springs.size(); l++){
-            if(particles[i].flexion_springs[l].force == false){
+            //if(particles[i].flexion_springs[l].force == false){
                 particles[i].flexion_springs[l].force = Correct(*particles[i].flexion_springs[l].leftParticle, *particles[i].flexion_springs[l].rightParticle, 2);
-            }
+            //}
         }
     }
 }
@@ -669,7 +673,7 @@ void Balloon::Animate() {
         if(particles[i].fixed == false){
             Vec3f inflate = particles[i].cached_normal;
             inflate *= k_normal * adjusted;
-            BalloonParticle p = particles[i];
+            BalloonParticle& p = particles[i];
             int count = 0;
             int totalSprings = p.shear_springs.size() + p.structural_springs.size() + p.flexion_springs.size();
             Vec3f springforces(0.0, 0.0, 0.0);
@@ -678,18 +682,23 @@ void Balloon::Animate() {
                     springforces += isStretched(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, p.shear_springs[j].k_constant);
                     count++;
                 }
+                p.shear_springs[j].force = false;
             }
             for(int k = 0; k < p.structural_springs.size(); k++){
                 if(p.structural_springs[k].force == false){
                     springforces += isStretched(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, p.structural_springs[k].k_constant);
                     count++;
                 }
+                p.structural_springs[k].force = false;
+
             }
             for(int l = 0; l < p.flexion_springs.size(); l++){
                 if(p.flexion_springs[l].force == false){
                     springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
                     count++;
                 }
+                p.flexion_springs[l].force = false;
+
             }
             if (i == string_id && use_string)
             {
@@ -703,10 +712,11 @@ void Balloon::Animate() {
             Vec3f gravforces = (gravity + helium) * particles[i].getMass();
             Vec3f dampforces = damping * particles[i].getVelocity();
             Vec3f totforces = gravforces - dampforces;
-            if(float(count)/float(totalSprings) >= 0.9){
-                totforces -= springforces;
-                totforces += inflate;
-            }
+            //if(float(count)/float(totalSprings) >= 0.9){
+            float k_val = (float(count)/float(totalSprings));
+                totforces -= k_val * springforces;
+                totforces += k_val * inflate;
+            //}
             Vec3f acc = totforces*(1/particles[i].getMass());
             Vec3f nvel = particles[i].getVelocity() + timestep*(acc);
             Vec3f npos  = particles[i].getPosition() + (timestep*nvel);
@@ -738,7 +748,7 @@ void Balloon::Animate() {
             
             particles[c_id].position = s.radius * dir + s.position;
             
-            s.force -= particles[c_id].structural_springs[0].k_constant * dir;
+            s.force -= 50 * k_normal * dir;
         }
         
         s.force += s.mass * gravity- (0.1 * damping * s.velocity);
