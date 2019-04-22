@@ -109,6 +109,7 @@ void Balloon::PackMesh() {
     //
     // new_balloon_tri_count += ????
     // *********************************************************************
+    new_balloon_tri_count += 4*12*mesh_vertices.size();
   }
   if (mesh_data->bounding_box) {
     new_balloon_tri_count += 12 * 12;
@@ -361,7 +362,77 @@ void Balloon::PackBalloonForces(float* &current) {
   // Visualize the forces
   //
   // *********************************************************************    
-  
+    float thickness = 0.002 * mesh_data->bb_max_dim;
+    float dt = mesh_data->timestep;
+    float g[3];
+    g[0] = mesh_data->gravity.data[0];
+    g[1] = mesh_data->gravity.data[1];
+    g[2] = mesh_data->gravity.data[2];
+    Vec3f gravity(g[0],g[1],g[2]);
+    Vec3f helium(0.0, 200 + 5 * k_normal, 0.0);
+
+    for(int i = 0; i < mesh_vertices.size(); i++){
+        if(particles[i].fixed == false){
+            Vec3f inflate = particles[i].cached_normal;
+            //inflate *= k_normal * adjusted;
+            BalloonParticle& p = particles[i];
+            int count = 0;
+            int totalSprings = p.shear_springs.size() + p.structural_springs.size() + p.flexion_springs.size();
+            Vec3f springforces(0.0, 0.0, 0.0);
+            for(int j = 0; j < p.shear_springs.size(); j++){
+                if(p.shear_springs[j].force == false){
+                    springforces += isStretched(*p.shear_springs[j].leftParticle, *p.shear_springs[j].rightParticle, p.shear_springs[j].k_constant);
+                    count++;
+                }
+                p.shear_springs[j].force = false;
+            }
+            for(int k = 0; k < p.structural_springs.size(); k++){
+                if(p.structural_springs[k].force == false){
+                    springforces += isStretched(*p.structural_springs[k].leftParticle, *p.structural_springs[k].rightParticle, p.structural_springs[k].k_constant);
+                    count++;
+                }
+                p.structural_springs[k].force = false;
+
+            }
+            for(int l = 0; l < p.flexion_springs.size(); l++){
+                if(p.flexion_springs[l].force == false){
+                    springforces += isStretched(*p.flexion_springs[l].leftParticle, *p.flexion_springs[l].rightParticle, p.flexion_springs[l].k_constant);
+                    count++;
+                }
+                p.flexion_springs[l].force = false;
+
+            }
+            Vec3f gravforces = (gravity) * particles[i].getMass() *50;
+            Vec3f helforces = (helium) * particles[i].getMass() *50;
+            Vec3f dampforces = damping * particles[i].getVelocity();
+            Vec3f totforces = gravforces - dampforces;
+            //if(float(count)/float(totalSprings) >= 0.9){
+            float k_val = (float(count)/float(totalSprings));
+            k_val = 100 * k_normal * (mesh_faces[p.nearest_faces[0]].area / totalArea);
+                totforces -= 1.0 * springforces;
+                totforces += k_val * inflate;
+                totforces *= 5;
+            const Vec3f &pos = particles[i].getPosition();
+            //std::cout << pos<<std::endl;
+            //std::cout << springforces<<std::endl;
+
+            addEdgeGeometry(current,
+                      pos,pos-springforces,//add force here
+                      Vec3f(0,0,1),Vec3f(0,1,1),thickness,thickness);
+            /*
+            addEdgeGeometry(current,
+                      pos,pos+gravity,//add force here
+                      Vec3f(1,0,0),Vec3f(1,1,0),thickness,thickness);
+
+            addEdgeGeometry(current,
+                      pos,pos+helium,//add force here
+                      Vec3f(0,1,0),Vec3f(1,0,1),thickness,thickness);
+*/
+            addEdgeGeometry(current,
+                      pos,pos-totforces,//add force here
+                      Vec3f(1,0,0),Vec3f(1,1,0),thickness,thickness);
+        }
+    }
 }
 
 
