@@ -709,7 +709,7 @@ void Balloon::Animate() {
     g[1] = mesh_data->gravity.data[1];
     g[2] = mesh_data->gravity.data[2];
     Vec3f gravity(g[0],g[1],g[2]);
-    Vec3f helium(0.0, 200 + 5 * k_normal, 0.0);
+    Vec3f helium(0.0, 50 + 5 * k_normal, 0.0);
     
     for(int i = 0; i < mesh_vertices.size(); i++){
         if(particles[i].fixed == false){
