@@ -8,13 +8,9 @@ k_normal 1
 string_pos 0 -6 0
 
 use_string
-#string_id 116
 damping 0.2
 string_stretch 1.1
 m 0.001
-
-#s -10 5 0 5 1000 20 0 0
-#s 0 0 0 1 10000 0 0 0
 
 struct_cor 0.1
 shear_cor 0.1
